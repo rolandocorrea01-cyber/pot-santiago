@@ -35,9 +35,9 @@
   }
   #panel-tabs { display:flex; flex-shrink:0; border-bottom:2px solid #c8961a; }
   .tab-btn {
-    flex:1; padding:10px 6px; font-size:11px; font-weight:600;
+    flex:1; padding:8px 4px; font-size:10px; font-weight:600;
     color:#7a8aaa; background:#f7f9fc; border:none; cursor:pointer;
-    text-transform:uppercase; letter-spacing:0.4px; transition:all 0.15s;
+    text-transform:uppercase; letter-spacing:0.3px; transition:all 0.15s;
     border-right:1px solid #eef0f4;
   }
   .tab-btn:last-child { border-right:none; }
@@ -46,7 +46,7 @@
   .tab-panel { display:none; flex:1; overflow-y:auto; flex-direction:column; }
   .tab-panel.active { display:flex; }
 
-  /* SECCIÓN DE FILTROS */
+  /* FILTROS */
   .filter-section { border-bottom:1px solid #eef0f4; }
   .filter-section-header {
     display:flex; align-items:center; gap:8px; padding:9px 14px;
@@ -60,31 +60,24 @@
   .fs-arrow.open { transform:rotate(90deg); }
   .filter-section-body { display:none; }
   .filter-section-body.open { display:block; }
-
-  /* TOGGLE ALL */
   .toggle-all-row {
     display:flex; align-items:center; gap:6px;
     padding:5px 14px 3px 28px; font-size:11px; color:#1a3a5c;
     font-weight:600; border-bottom:1px solid #f0f0f0;
   }
   .toggle-all-row input { accent-color:#1a3a5c; cursor:pointer; }
-
-  /* FILTRO CORREGIMIENTOS */
   .corr-item {
     display:flex; align-items:center; gap:8px;
-    padding:4px 14px 4px 28px; font-size:12px; color:#2c3e50; cursor:pointer;
+    padding:4px 14px 4px 28px; font-size:11px; color:#2c3e50;
   }
   .corr-item:hover { background:#f0f5fb; }
   .corr-item input { accent-color:#1a3a5c; width:13px; height:13px; cursor:pointer; flex-shrink:0; }
   .corr-swatch { width:14px; height:10px; border-radius:2px; flex-shrink:0; border:1px solid rgba(0,0,0,0.15); }
-
-  /* FILTRO ZONIFICACIÓN */
   .zona-cat { border-top:1px solid #f0f0f0; }
   .zona-cat-header {
     display:flex; align-items:center; gap:6px;
     padding:5px 14px 5px 28px; cursor:pointer;
-    font-size:11px; font-weight:700; color:#fff;
-    user-select:none;
+    font-size:11px; font-weight:700; color:#fff; user-select:none;
   }
   .zona-cat-header input { accent-color:#fff; cursor:pointer; flex-shrink:0; }
   .zona-cat-arrow { margin-left:auto; font-size:9px; opacity:0.8; transition:transform 0.2s; }
@@ -93,13 +86,33 @@
   .zona-codes.open { display:block; }
   .zona-code-item {
     display:flex; align-items:center; gap:7px;
-    padding:3px 14px 3px 42px; font-size:11px; color:#2c3e50; cursor:pointer;
+    padding:3px 14px 3px 42px; font-size:11px; color:#2c3e50;
   }
   .zona-code-item:hover { background:#f0f5fb; }
   .zona-code-item input { accent-color:#1a3a5c; width:12px; height:12px; cursor:pointer; flex-shrink:0; }
   .zona-code-swatch { width:14px; height:9px; border-radius:2px; flex-shrink:0; border:1px solid rgba(0,0,0,0.15); }
-  .zona-code-label { flex:1; }
   .zona-code-bold { font-weight:700; color:#1a3a5c; margin-right:3px; }
+
+  /* BUSCADOR */
+  #search-box { padding:12px 14px; border-bottom:1px solid #eef0f4; flex-shrink:0; }
+  #search-box label { font-size:10px; font-weight:700; color:#7a8aaa; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px; }
+  .search-row { display:flex; gap:6px; margin-bottom:6px; }
+  .search-row input {
+    flex:1; border:1px solid #ccc; border-radius:4px; padding:6px 8px;
+    font-size:12px; color:#1a1a2e; outline:none;
+  }
+  .search-row input:focus { border-color:#1a3a5c; }
+  #btn-buscar {
+    background:#1a3a5c; color:#fff; border:none; border-radius:4px;
+    padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer;
+  }
+  #btn-buscar:hover { background:#0f2540; }
+  #search-result {
+    font-size:11px; line-height:1.6; color:#2c3e50;
+    background:#f7f9fc; border-radius:4px; padding:8px 10px;
+    display:none; border-left:3px solid #c8961a;
+  }
+  #search-result.error { border-color:#e74c3c; }
 
   /* ELEMENTO */
   #tab-info-content { padding:12px 14px; flex:1; }
@@ -133,8 +146,6 @@
     font-size:14px; display:flex; align-items:center; justify-content:center;
   }
   #toggle-panel:hover { background:#0f2540; }
-
-  /* STATS BAR */
   #stats-bar {
     flex-shrink:0; background:#1a3a5c; color:#a8c4e0;
     font-size:10px; padding:5px 14px; border-top:1px solid #0f2540;
@@ -155,11 +166,12 @@
   <div id="panel">
     <div id="panel-tabs">
       <button class="tab-btn active" onclick="switchTab('filtros',this)">Filtros</button>
+      <button class="tab-btn" onclick="switchTab('buscar',this)">Buscar</button>
       <button class="tab-btn" onclick="switchTab('info',this)">Elemento</button>
     </div>
 
+    <!-- TAB FILTROS -->
     <div id="tab-filtros" class="tab-panel active">
-      <!-- SECCIÓN CORREGIMIENTOS -->
       <div class="filter-section">
         <div class="filter-section-header" onclick="toggleSection(this)">
           <span class="fs-dot" style="background:#4a235a"></span>
@@ -174,8 +186,6 @@
           <div id="corr-list"></div>
         </div>
       </div>
-
-      <!-- SECCIÓN ZONIFICACIÓN -->
       <div class="filter-section">
         <div class="filter-section-header" onclick="toggleSection(this)">
           <span class="fs-dot" style="background:#c8961a"></span>
@@ -192,6 +202,22 @@
       </div>
     </div>
 
+    <!-- TAB BUSCAR -->
+    <div id="tab-buscar" class="tab-panel">
+      <div id="search-box">
+        <label>Consulta de Zonificación por Coordenadas</label>
+        <div class="search-row">
+          <input type="number" id="input-lat" placeholder="Latitud (ej: 8.1050)" step="0.0001">
+        </div>
+        <div class="search-row">
+          <input type="number" id="input-lng" placeholder="Longitud (ej: -80.9820)" step="0.0001">
+          <button id="btn-buscar" onclick="buscarCoordenadas()">Buscar</button>
+        </div>
+        <div id="search-result"></div>
+      </div>
+    </div>
+
+    <!-- TAB ELEMENTO -->
     <div id="tab-info" class="tab-panel">
       <div id="tab-info-content">
         <div class="info-title">Información de elemento</div>
@@ -200,7 +226,7 @@
     </div>
 
     <div id="stats-bar">
-      Corregimientos: <span id="stat-corr">0</span> &nbsp;|&nbsp; Zonas visibles: <span id="stat-zona">0</span>
+      Corregimientos: <span id="stat-corr">0</span> &nbsp;|&nbsp; Zonas: <span id="stat-zona">0</span>
     </div>
   </div>
 
@@ -217,9 +243,6 @@
 </div>
 
 <script>
-// ============================================================
-// UTILS
-// ============================================================
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -227,8 +250,7 @@ function switchTab(name, btn) {
   btn.classList.add('active');
 }
 function toggleSection(hdr) {
-  const body = hdr.nextElementSibling;
-  body.classList.toggle('open');
+  hdr.nextElementSibling.classList.toggle('open');
   hdr.querySelector('.fs-arrow').classList.toggle('open');
 }
 
@@ -253,7 +275,7 @@ map.on('mousemove',e=>{
 });
 
 // ============================================================
-// DATOS DE ZONAS Y CORREGIMIENTOS
+// COLORES
 // ============================================================
 const CORR_COLORS = {
   'URRACA':'hsl(0,65%,50%)', 'SANTIAGO':'hsl(210,65%,45%)',
@@ -324,205 +346,243 @@ const ZONA_MAP = {};
 ZONA_CATS.forEach(cat=>cat.zones.forEach(z=>{ZONA_MAP[z.code]=z;}));
 
 // ============================================================
-// ESTADO DE FILTROS
+// ESTADO DE FILTROS — INDEPENDIENTES
 // ============================================================
-const activeCorr = new Set(Object.keys(CORR_COLORS)); // todos activos al inicio
-const activeZona = new Set(Object.keys(ZONA_MAP));    // todos activos al inicio
+const activeCorr = new Set();
+const activeZona = new Set(Object.keys(ZONA_MAP));
 
 // ============================================================
-// CAPAS LEAFLET
+// CAPAS
 // ============================================================
 let corrLayer = null;
 let zonaLayer = null;
 let corrData = null;
 let zonaData = null;
+let searchMarker = null;
 
 function applyFilters() {
-  // Reconstruir capa corregimientos
+  // CORREGIMIENTOS — detrás de zonificación
   if(corrData) {
     if(corrLayer) map.removeLayer(corrLayer);
     corrLayer = L.geoJSON(corrData, {
       style: f => {
-        const name = (f.properties.CORR_NOMB||'').toUpperCase().trim();
-        // verificar si alguna clave activa está en el nombre
-        const isActive = [...activeCorr].some(k => name.includes(k));
-        if(!isActive) return {fillOpacity:0, opacity:0, weight:0};
-        return {color:'#fff',weight:1.5,opacity:0.9,fillColor:getCorrColor(f.properties.CORR_NOMB),fillOpacity:0.6};
+        const name=(f.properties.CORR_NOMB||'').toUpperCase().trim();
+        const isActive=[...activeCorr].some(k=>name.includes(k));
+        if(!isActive) return {fillOpacity:0,opacity:0,weight:0,interactive:false};
+        return {color:'#fff',weight:1.5,opacity:0.9,fillColor:getCorrColor(f.properties.CORR_NOMB),fillOpacity:0.5};
       },
-      onEachFeature: (f,l) => {
-        const name = (f.properties.CORR_NOMB||'').toUpperCase().trim();
-        const isActive = [...activeCorr].some(k=>name.includes(k));
+      onEachFeature:(f,l)=>{
+        const name=(f.properties.CORR_NOMB||'').toUpperCase().trim();
+        const isActive=[...activeCorr].some(k=>name.includes(k));
         if(!isActive) return;
-        l.on('click', e => showPopup(f, l, e.latlng, 'Corregimientos'));
+        l.on('click',e=>{
+          // Popup minimalista en mapa
+          const corrNomb = f.properties.CORR_NOMB||'';
+          const codigo = f.properties.CODIGO||f.properties.CORR_ID||'';
+          const color = getCorrColor(corrNomb);
+          const popupHtml =
+            '<div style="text-align:center;padding:4px 8px;">' +
+            '<span style="background:'+color+';color:#fff;font-size:13px;font-weight:700;padding:3px 14px;border-radius:12px;display:inline-block;margin-bottom:6px;">'+corrNomb+'</span><br>' +
+            '<span style="font-size:11px;color:#555;">Código: <b>'+codigo+'</b></span>' +
+            '</div>';
+          L.popup({maxWidth:220}).setLatLng(e.latlng).setContent(popupHtml).openOn(map);
+          // Detalles completos en tab Elemento
+          const props=f.properties||{};
+          const keys=Object.keys(props).filter(k=>props[k]!==null&&props[k]!=='');
+          let html='<strong style="color:#1a3a5c;font-size:13px;">Corregimiento</strong>';
+          html+='<br><span style="background:'+color+';color:#fff;font-size:12px;font-weight:600;padding:2px 10px;border-radius:10px;">'+corrNomb+'</span>';
+          html+='<br><hr style="margin:5px 0">';
+          keys.forEach(k=>{html+='<span style="font-size:11px;color:#777;">'+k+':</span> <b style="font-size:12px;color:#1a1a2e;">'+props[k]+'</b><br>';});
+          document.getElementById('feature-info').classList.remove('empty');
+          document.getElementById('feature-info').innerHTML=html;
+        });
       }
     }).addTo(map);
   }
 
-  // Reconstruir capa zonificación
+  // ZONIFICACIÓN — encima de corregimientos, filtro independiente
   if(zonaData) {
     if(zonaLayer) map.removeLayer(zonaLayer);
-    // Determinar qué corregimientos están activos para filtro espacial
-    // (simplificado: si NO hay filtro de corregimiento activo mostramos todo)
-    const allCorrActive = activeCorr.size === Object.keys(CORR_COLORS).length;
-
     zonaLayer = L.geoJSON(zonaData, {
       style: f => {
-        const ref = f.properties.RefName;
-        if(!activeZona.has(ref)) return {fillOpacity:0,opacity:0,weight:0};
-        const z = ZONA_MAP[ref];
+        const ref=f.properties.RefName;
+        if(!activeZona.has(ref)) return {fillOpacity:0,opacity:0,weight:0,interactive:false};
+        const z=ZONA_MAP[ref];
         return {color:'#555',weight:0.5,opacity:0.7,fillColor:z?z.color:'#ccc',fillOpacity:0.75};
       },
-      filter: f => {
-        // Filtro espacial por corregimiento usando CORR_ID si existe, o simplificamos con punto-en-polígono
-        if(activeCorr.size === 0) return false;
-        const ref = f.properties.RefName;
-        if(!activeZona.has(ref)) return false;
-        // Si todos los corregimientos están activos, mostrar todo
-        if(allCorrActive) return true;
-        // Si hay filtro de corregimiento, filtrar por intersección geométrica
-        // Usamos el centroide del feature para verificar qué corregimiento lo contiene
-        if(!corrData) return true;
-        return featureInActiveCorr(f);
-      },
-      onEachFeature: (f,l) => {
-        l.on('click', e => showPopup(f, l, e.latlng, 'Zonificación Urbana'));
+      filter: f => activeZona.has(f.properties.RefName),
+      onEachFeature:(f,l)=>{
+        l.on('click',e=>{
+          const props=f.properties||{};
+          const ref=props.RefName;
+          const z=ref&&ZONA_MAP[ref]?ZONA_MAP[ref]:null;
+          // Popup minimalista
+          const badgeColor=z?z.color:'#ccc';
+          const badgeText=z?ref+' — '+z.name:ref||'Sin clasificar';
+          const popupHtml=
+            '<div style="text-align:center;padding:4px 8px;">'+
+            '<span style="background:'+badgeColor+';color:#333;font-size:12px;font-weight:700;padding:3px 14px;border-radius:12px;display:inline-block;border:1px solid rgba(0,0,0,0.15);">'+badgeText+'</span>'+
+            '</div>';
+          L.popup({maxWidth:260}).setLatLng(e.latlng).setContent(popupHtml).openOn(map);
+          // Detalles en Elemento
+          const keys=Object.keys(props).filter(k=>props[k]!==null&&props[k]!=='');
+          let html='<strong style="color:#1a3a5c;font-size:13px;">Zonificación Urbana</strong>';
+          if(z) html+='<br><span style="background:'+z.color+';color:#333;font-size:12px;font-weight:600;padding:2px 10px;border-radius:10px;border:1px solid rgba(0,0,0,0.15);">'+ref+' — '+z.name+'</span>';
+          html+='<br><hr style="margin:5px 0">';
+          keys.forEach(k=>{html+='<span style="font-size:11px;color:#777;">'+k+':</span> <b style="font-size:12px;color:#1a1a2e;">'+props[k]+'</b><br>';});
+          document.getElementById('feature-info').classList.remove('empty');
+          document.getElementById('feature-info').innerHTML=html;
+        });
       }
     }).addTo(map);
-    // Asegurar que corregimientos estén arriba
-    if(corrLayer) corrLayer.bringToFront();
+    // Asegurar orden: corregimientos abajo, zonificación arriba
+    if(corrLayer) corrLayer.bringToBack();
+    if(zonaLayer) zonaLayer.bringToFront();
   }
 
   updateStats();
 }
 
-// Verificar si el centroide de una feature de zona cae dentro de algún corregimiento activo
-function featureInActiveCorr(zonaFeature) {
-  if(!corrData) return true;
-  // Calcular centroide aproximado
-  let cx=0, cy=0, count=0;
-  const coords = zonaFeature.geometry.coordinates;
-  function processRing(ring) {
-    ring.forEach(pt=>{ cx+=pt[0]; cy+=pt[1]; count++; });
-  }
-  if(zonaFeature.geometry.type==='Polygon') { processRing(coords[0]); }
-  else if(zonaFeature.geometry.type==='MultiPolygon') { coords.forEach(poly=>processRing(poly[0])); }
-  if(count===0) return false;
-  cx/=count; cy/=count;
-  const pt = [cx,cy];
-
-  // Verificar si el punto cae en algún corregimiento activo
-  for(const corrFeature of corrData.features) {
-    const name = (corrFeature.properties.CORR_NOMB||'').toUpperCase().trim();
-    const isActive = [...activeCorr].some(k=>name.includes(k));
-    if(!isActive) continue;
-    if(pointInFeature(pt, corrFeature)) return true;
-  }
-  return false;
+function updateStats() {
+  document.getElementById('stat-corr').textContent=activeCorr.size;
+  document.getElementById('stat-zona').textContent=activeZona.size;
 }
 
-// Point-in-polygon simplificado
-function pointInFeature(pt, feature) {
-  const geom = feature.geometry;
-  if(geom.type==='Polygon') return pointInPolygon(pt, geom.coordinates[0]);
-  if(geom.type==='MultiPolygon') return geom.coordinates.some(poly=>pointInPolygon(pt,poly[0]));
+// ============================================================
+// BUSCADOR POR COORDENADAS
+// ============================================================
+function buscarCoordenadas() {
+  const lat=parseFloat(document.getElementById('input-lat').value);
+  const lng=parseFloat(document.getElementById('input-lng').value);
+  const result=document.getElementById('search-result');
+
+  if(isNaN(lat)||isNaN(lng)) {
+    result.style.display='block'; result.className='error';
+    result.innerHTML='⚠️ Ingresa coordenadas válidas.'; return;
+  }
+
+  const pt=[lng,lat];
+
+  // Validar que el punto esté dentro del Distrito de Santiago
+  if(corrData) {
+    const dentroDelDistrito=corrData.features.some(f=>pointInFeature(pt,f));
+    if(!dentroDelDistrito) {
+      result.style.display='block'; result.className='error';
+      result.innerHTML='⚠️ Las coordenadas están fuera del Distrito de Santiago.'; return;
+    }
+  }
+
+  // Mover mapa al punto
+  map.setView([lat,lng],15);
+  if(searchMarker) map.removeLayer(searchMarker);
+  searchMarker=L.marker([lat,lng],{
+    icon:L.divIcon({
+      className:'',
+      html:'<div style="width:16px;height:16px;background:#e74c3c;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.4);"></div>',
+      iconAnchor:[8,8]
+    })
+  }).addTo(map);
+
+  // Buscar corregimiento
+  let corrNomb='—';
+  if(corrData) {
+    for(const f of corrData.features) {
+      if(pointInFeature(pt,f)){corrNomb=f.properties.CORR_NOMB||'—'; break;}
+    }
+  }
+
+  // Buscar zona
+  let zonaInfo='Fuera de zona urbana clasificada';
+  if(zonaData) {
+    for(const f of zonaData.features) {
+      if(pointInFeature(pt,f)){
+        const ref=f.properties.RefName;
+        const z=ZONA_MAP[ref];
+        zonaInfo=z?'<span style="background:'+z.color+';color:#333;padding:2px 8px;border-radius:8px;font-weight:700;border:1px solid rgba(0,0,0,0.15);">'+ref+'</span> '+z.name:ref||'Sin clasificar';
+        break;
+      }
+    }
+  }
+
+  result.style.display='block'; result.className='';
+  result.innerHTML=
+    '<b style="color:#1a3a5c;">📍 Coordenadas</b><br>'+
+    'Lat: '+lat.toFixed(6)+' &nbsp; Lng: '+lng.toFixed(6)+'<br><hr style="margin:5px 0">'+
+    '<b style="color:#4a235a;">Corregimiento:</b> '+corrNomb+'<br>'+
+    '<b style="color:#c8961a;">Zona:</b> '+zonaInfo;
+}
+
+// Enter en campos también busca
+document.addEventListener('DOMContentLoaded',()=>{
+  ['input-lat','input-lng'].forEach(id=>{
+    document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')buscarCoordenadas();});
+  });
+});
+
+// ============================================================
+// GEOMETRÍA — point in polygon
+// ============================================================
+function pointInFeature(pt,feature) {
+  const g=feature.geometry;
+  if(g.type==='Polygon') return pointInPolygon(pt,g.coordinates[0]);
+  if(g.type==='MultiPolygon') return g.coordinates.some(poly=>pointInPolygon(pt,poly[0]));
   return false;
 }
-function pointInPolygon(pt, ring) {
-  let inside=false;
-  const x=pt[0], y=pt[1];
-  for(let i=0,j=ring.length-1; i<ring.length; j=i++) {
+function pointInPolygon(pt,ring) {
+  let inside=false; const x=pt[0],y=pt[1];
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
     const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
     if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi)) inside=!inside;
   }
   return inside;
 }
 
-function updateStats() {
-  document.getElementById('stat-corr').textContent = activeCorr.size;
-  document.getElementById('stat-zona').textContent = activeZona.size;
-}
-
-function showPopup(f, l, latlng, layerName) {
-  const props = f.properties||{};
-  const corrNomb = props.CORR_NOMB;
-  const ref = props.RefName;
-  let badge='';
-  if(corrNomb) {
-    badge='<div style="margin:4px 0;"><span style="background:'+getCorrColor(corrNomb)+';color:#fff;font-size:12px;font-weight:600;padding:3px 12px;border-radius:12px;">'+corrNomb+'</span></div>';
-  }
-  if(ref && ZONA_MAP[ref]) {
-    const z=ZONA_MAP[ref];
-    badge='<div style="margin:4px 0;"><span style="background:'+z.color+';color:#333;font-size:12px;font-weight:600;padding:3px 12px;border-radius:12px;border:1px solid rgba(0,0,0,0.15);">'+ref+' — '+z.name+'</span></div>';
-  }
-  const keys=Object.keys(props).filter(k=>props[k]!==null&&props[k]!=='');
-  let html='<strong style="color:#1a3a5c;font-size:13px;">'+layerName+'</strong>'+badge+'<hr style="margin:5px 0">';
-  keys.slice(0,10).forEach(k=>{
-    html+='<span style="font-size:11px;color:#777;">'+k+':</span> <b style="font-size:12px;color:#1a1a2e;">'+props[k]+'</b><br>';
-  });
-  document.getElementById('feature-info').classList.remove('empty');
-  document.getElementById('feature-info').innerHTML=html;
-  L.popup({maxWidth:320}).setLatLng(latlng).setContent(html).openOn(map);
-}
-
 // ============================================================
 // CARGAR DATOS
 // ============================================================
 async function loadAll() {
-  const [corrResp, zonaResp] = await Promise.all([
+  const [corrResp,zonaResp]=await Promise.all([
     fetch('data/DISTRITO.geojson'),
     fetch('data/ZONIFICACION.geojson')
   ]);
-  corrData = await corrResp.json();
-  zonaData = await zonaResp.json();
+  corrData=await corrResp.json();
+  zonaData=await zonaResp.json();
 
-  // Descubrir corregimientos reales en el GeoJSON
-  const corrNames = new Set();
-  corrData.features.forEach(f=>{
-    const n=(f.properties.CORR_NOMB||'').trim();
-    if(n) corrNames.add(n);
-  });
-
+  const corrNames=new Set();
+  corrData.features.forEach(f=>{const n=(f.properties.CORR_NOMB||'').trim(); if(n)corrNames.add(n);});
   buildCorrFilter([...corrNames].sort());
   buildZonaFilter();
   applyFilters();
 }
 
 // ============================================================
-// CONSTRUIR FILTRO CORREGIMIENTOS
+// FILTRO CORREGIMIENTOS
 // ============================================================
 function buildCorrFilter(names) {
-  // Reiniciar activeCorr con nombres reales
   activeCorr.clear();
   names.forEach(n=>activeCorr.add(n.toUpperCase().trim()));
-
-  const container = document.getElementById('corr-list');
-  names.forEach(name => {
-    const key = name.toUpperCase().trim();
-    const color = getCorrColor(name);
-    const div = document.createElement('div');
-    div.className = 'corr-item';
-    const cb = document.createElement('input');
-    cb.type='checkbox'; cb.checked=true; cb.id='corr-'+key;
-    cb.addEventListener('change', ()=>{
-      if(cb.checked) activeCorr.add(key); else activeCorr.delete(key);
-      updateAllCorrCheckbox();
-      applyFilters();
+  const container=document.getElementById('corr-list');
+  names.forEach(name=>{
+    const key=name.toUpperCase().trim();
+    const color=getCorrColor(name);
+    const div=document.createElement('div'); div.className='corr-item';
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=true; cb.id='corr-'+key;
+    cb.addEventListener('change',()=>{
+      if(cb.checked)activeCorr.add(key); else activeCorr.delete(key);
+      updateAllCorrCheckbox(); applyFilters();
     });
-    const swatch=document.createElement('span');
-    swatch.className='corr-swatch'; swatch.style.background=color;
-    const label=document.createElement('label');
-    label.htmlFor='corr-'+key; label.textContent=name;
-    label.style.cursor='pointer'; label.style.fontSize='11px';
+    const swatch=document.createElement('span'); swatch.className='corr-swatch'; swatch.style.background=color;
+    const label=document.createElement('label'); label.htmlFor='corr-'+key;
+    label.textContent=name; label.style.cursor='pointer'; label.style.fontSize='11px';
     div.appendChild(cb); div.appendChild(swatch); div.appendChild(label);
     container.appendChild(div);
   });
+  updateStats();
 }
-
 function toggleAllCorr(checked) {
   activeCorr.clear();
   document.querySelectorAll('#corr-list input').forEach(cb=>{
-    cb.checked=checked;
-    if(checked) activeCorr.add(cb.id.replace('corr-',''));
+    cb.checked=checked; if(checked)activeCorr.add(cb.id.replace('corr-',''));
   });
   applyFilters();
 }
@@ -530,85 +590,55 @@ function updateAllCorrCheckbox() {
   const all=document.querySelectorAll('#corr-list input');
   const checked=[...all].filter(c=>c.checked).length;
   const allCb=document.getElementById('corr-all');
-  allCb.checked=checked===all.length;
-  allCb.indeterminate=checked>0&&checked<all.length;
+  allCb.checked=checked===all.length; allCb.indeterminate=checked>0&&checked<all.length;
 }
 
 // ============================================================
-// CONSTRUIR FILTRO ZONIFICACIÓN
+// FILTRO ZONIFICACIÓN
 // ============================================================
 function buildZonaFilter() {
   const container=document.getElementById('zona-list');
   ZONA_CATS.forEach(cat=>{
-    const catDiv=document.createElement('div');
-    catDiv.className='zona-cat';
-
-    // Header de categoría con checkbox + toggle
-    const hdr=document.createElement('div');
-    hdr.className='zona-cat-header';
-    hdr.style.background=cat.color;
-    const catCb=document.createElement('input');
-    catCb.type='checkbox'; catCb.checked=true;
-    const catLabel=document.createElement('span');
-    catLabel.textContent=cat.cat; catLabel.style.flex='1';
-    const arrow=document.createElement('span');
-    arrow.className='zona-cat-arrow'; arrow.innerHTML='&#9658;';
+    const catDiv=document.createElement('div'); catDiv.className='zona-cat';
+    const hdr=document.createElement('div'); hdr.className='zona-cat-header'; hdr.style.background=cat.color;
+    const catCb=document.createElement('input'); catCb.type='checkbox'; catCb.checked=true;
+    const catLabel=document.createElement('span'); catLabel.textContent=cat.cat; catLabel.style.flex='1';
+    const arrow=document.createElement('span'); arrow.className='zona-cat-arrow'; arrow.innerHTML='&#9658;';
     hdr.appendChild(catCb); hdr.appendChild(catLabel); hdr.appendChild(arrow);
     catDiv.appendChild(hdr);
-
-    // Códigos individuales
-    const codesDiv=document.createElement('div');
-    codesDiv.className='zona-codes';
-
+    const codesDiv=document.createElement('div'); codesDiv.className='zona-codes';
     cat.zones.forEach(z=>{
-      const row=document.createElement('div');
-      row.className='zona-code-item';
-      const cb=document.createElement('input');
-      cb.type='checkbox'; cb.checked=true; cb.id='zona-'+z.code;
+      const row=document.createElement('div'); row.className='zona-code-item';
+      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=true; cb.id='zona-'+z.code;
       cb.addEventListener('change',()=>{
-        if(cb.checked) activeZona.add(z.code); else activeZona.delete(z.code);
-        updateCatCheckbox(catCb, cat);
-        updateAllZonaCheckbox();
-        applyFilters();
+        if(cb.checked)activeZona.add(z.code); else activeZona.delete(z.code);
+        updateCatCheckbox(catCb,cat); updateAllZonaCheckbox(); applyFilters();
       });
-      const swatch=document.createElement('span');
-      swatch.className='zona-code-swatch'; swatch.style.background=z.color;
-      const lbl=document.createElement('label');
-      lbl.htmlFor='zona-'+z.code; lbl.className='zona-code-label';
-      lbl.innerHTML='<span class="zona-code-bold">'+z.code+'</span>'+z.name;
-      lbl.style.cursor='pointer';
+      const swatch=document.createElement('span'); swatch.className='zona-code-swatch'; swatch.style.background=z.color;
+      const lbl=document.createElement('label'); lbl.htmlFor='zona-'+z.code; lbl.className='zona-code-label';
+      lbl.innerHTML='<span class="zona-code-bold">'+z.code+'</span>'+z.name; lbl.style.cursor='pointer';
       row.appendChild(cb); row.appendChild(swatch); row.appendChild(lbl);
       codesDiv.appendChild(row);
     });
     catDiv.appendChild(codesDiv);
-
-    // Toggle expand/collapse
-    hdr.addEventListener('click', e=>{
-      if(e.target===catCb) return;
-      codesDiv.classList.toggle('open');
-      arrow.classList.toggle('open');
+    hdr.addEventListener('click',e=>{
+      if(e.target===catCb)return;
+      codesDiv.classList.toggle('open'); arrow.classList.toggle('open');
     });
-
-    // Cat checkbox → toggle todos sus hijos
     catCb.addEventListener('change',()=>{
       cat.zones.forEach(z=>{
-        const cb=document.getElementById('zona-'+z.code);
-        cb.checked=catCb.checked;
-        if(catCb.checked) activeZona.add(z.code); else activeZona.delete(z.code);
+        const cb=document.getElementById('zona-'+z.code); cb.checked=catCb.checked;
+        if(catCb.checked)activeZona.add(z.code); else activeZona.delete(z.code);
       });
-      updateAllZonaCheckbox();
-      applyFilters();
+      updateAllZonaCheckbox(); applyFilters();
     });
-
     container.appendChild(catDiv);
   });
 }
-
-function updateCatCheckbox(catCb, cat) {
+function updateCatCheckbox(catCb,cat) {
   const cbs=cat.zones.map(z=>document.getElementById('zona-'+z.code));
   const checked=cbs.filter(c=>c.checked).length;
-  catCb.checked=checked===cbs.length;
-  catCb.indeterminate=checked>0&&checked<cbs.length;
+  catCb.checked=checked===cbs.length; catCb.indeterminate=checked>0&&checked<cbs.length;
 }
 function toggleAllZona(checked) {
   ZONA_CATS.forEach(cat=>{
@@ -616,9 +646,7 @@ function toggleAllZona(checked) {
       const cb=document.getElementById('zona-'+z.code);
       if(cb){cb.checked=checked; if(checked)activeZona.add(z.code); else activeZona.delete(z.code);}
     });
-    // Actualizar cat checkboxes
-    const catItems=document.querySelectorAll('.zona-cat-header input');
-    catItems.forEach(c=>{c.checked=checked; c.indeterminate=false;});
+    document.querySelectorAll('.zona-cat-header input').forEach(c=>{c.checked=checked; c.indeterminate=false;});
   });
   applyFilters();
 }
@@ -626,8 +654,7 @@ function updateAllZonaCheckbox() {
   const all=document.querySelectorAll('#zona-list .zona-code-item input');
   const checked=[...all].filter(c=>c.checked).length;
   const allCb=document.getElementById('zona-all');
-  allCb.checked=checked===all.length;
-  allCb.indeterminate=checked>0&&checked<all.length;
+  allCb.checked=checked===all.length; allCb.indeterminate=checked>0&&checked<all.length;
 }
 
 // ============================================================
@@ -644,10 +671,7 @@ toggleBtn.addEventListener('click',()=>{
   map.invalidateSize();
 });
 
-// ============================================================
-// INICIAR
-// ============================================================
-loadAll().catch(e=>console.error('Error cargando datos:',e));
+loadAll().catch(e=>console.error('Error:',e));
 </script>
 </body>
 </html>
