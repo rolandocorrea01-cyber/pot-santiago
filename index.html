@@ -94,25 +94,47 @@
   .zona-code-bold { font-weight:700; color:#1a3a5c; margin-right:3px; }
 
   /* BUSCADOR */
-  #search-box { padding:12px 14px; border-bottom:1px solid #eef0f4; flex-shrink:0; }
-  #search-box label { font-size:10px; font-weight:700; color:#7a8aaa; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px; }
+  #search-box { padding:12px 14px; flex:1; overflow-y:auto; }
+  .search-section-title {
+    font-size:10px; font-weight:700; color:#fff; text-transform:uppercase;
+    letter-spacing:0.5px; background:#1a3a5c; padding:5px 10px;
+    border-radius:4px; margin:10px 0 6px; display:block;
+  }
+  .search-hint { font-size:10px; color:#7a8aaa; margin-bottom:6px; line-height:1.4; }
   .search-row { display:flex; gap:6px; margin-bottom:6px; }
   .search-row input {
     flex:1; border:1px solid #ccc; border-radius:4px; padding:6px 8px;
     font-size:12px; color:#1a1a2e; outline:none;
   }
   .search-row input:focus { border-color:#1a3a5c; }
-  #btn-buscar {
+  .search-row input::placeholder { color:#aaa; font-size:11px; }
+  .btn-action {
     background:#1a3a5c; color:#fff; border:none; border-radius:4px;
-    padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer;
+    padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;
   }
-  #btn-buscar:hover { background:#0f2540; }
-  #search-result {
-    font-size:11px; line-height:1.6; color:#2c3e50;
+  .btn-action:hover { background:#0f2540; }
+  .btn-secondary {
+    background:#c8961a; color:#fff; border:none; border-radius:4px;
+    padding:6px 10px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap;
+  }
+  .btn-secondary:hover { background:#a07815; }
+  .search-result-box {
+    font-size:11px; line-height:1.7; color:#2c3e50;
     background:#f7f9fc; border-radius:4px; padding:8px 10px;
-    display:none; border-left:3px solid #c8961a;
+    margin-top:6px; display:none; border-left:3px solid #c8961a;
   }
-  #search-result.error { border-color:#e74c3c; }
+  .search-result-box.error { border-color:#e74c3c; background:#fff5f5; }
+  #click-mode-btn {
+    width:100%; padding:8px; font-size:12px; font-weight:600;
+    border:2px dashed #1a3a5c; border-radius:6px; background:#f7f9fc;
+    color:#1a3a5c; cursor:pointer; transition:all 0.2s; margin-bottom:6px;
+  }
+  #click-mode-btn.active { background:#1a3a5c; color:#fff; border-style:solid; }
+  #click-result {
+    font-size:11px; line-height:1.7; color:#2c3e50;
+    background:#f7f9fc; border-radius:4px; padding:8px 10px;
+    display:none; border-left:3px solid #27ae60;
+  }
 
   /* ELEMENTO */
   #tab-info-content { padding:12px 14px; flex:1; }
@@ -180,7 +202,7 @@
         </div>
         <div class="filter-section-body open">
           <div class="toggle-all-row">
-            <input type="checkbox" id="corr-all" checked onchange="toggleAllCorr(this.checked)">
+            <input type="checkbox" id="corr-all" onchange="toggleAllCorr(this.checked)">
             <label for="corr-all">Todos / Ninguno</label>
           </div>
           <div id="corr-list"></div>
@@ -194,7 +216,7 @@
         </div>
         <div class="filter-section-body open">
           <div class="toggle-all-row">
-            <input type="checkbox" id="zona-all" checked onchange="toggleAllZona(this.checked)">
+            <input type="checkbox" id="zona-all" onchange="toggleAllZona(this.checked)">
             <label for="zona-all">Todos / Ninguno</label>
           </div>
           <div id="zona-list"></div>
@@ -205,15 +227,36 @@
     <!-- TAB BUSCAR -->
     <div id="tab-buscar" class="tab-panel">
       <div id="search-box">
-        <label>Consulta de Zonificación por Coordenadas</label>
+
+        <!-- SECCIÓN 1: CLIC EN MAPA -->
+        <span class="search-section-title">📍 Clic en el Mapa</span>
+        <div class="search-hint">Activa el modo y haz clic sobre cualquier punto del Distrito para consultar su zonificación.</div>
+        <button id="click-mode-btn" onclick="toggleClickMode()">Activar modo clic</button>
+        <div id="click-result"></div>
+
+        <!-- SECCIÓN 2: LAT/LNG -->
+        <span class="search-section-title">🌐 Por Latitud / Longitud</span>
         <div class="search-row">
           <input type="number" id="input-lat" placeholder="Latitud (ej: 8.1050)" step="0.0001">
         </div>
         <div class="search-row">
           <input type="number" id="input-lng" placeholder="Longitud (ej: -80.9820)" step="0.0001">
-          <button id="btn-buscar" onclick="buscarCoordenadas()">Buscar</button>
+          <button class="btn-action" onclick="buscarCoordenadas()">Buscar</button>
         </div>
-        <div id="search-result"></div>
+        <div id="search-result" class="search-result-box"></div>
+
+        <!-- SECCIÓN 3: CONVERTIDOR UTM -->
+        <span class="search-section-title">📐 Convertir UTM → Lat/Lng</span>
+        <div class="search-hint">Zona UTM 17N (EPSG:32617) — Sistema usado en Panama</div>
+        <div class="search-row">
+          <input type="number" id="input-utm-e" placeholder="Este (ej: 502300)" step="1">
+        </div>
+        <div class="search-row">
+          <input type="number" id="input-utm-n" placeholder="Norte (ej: 896100)" step="1">
+          <button class="btn-action" onclick="convertirUTM()">Convertir</button>
+        </div>
+        <div id="utm-result" class="search-result-box"></div>
+
       </div>
     </div>
 
@@ -349,7 +392,7 @@ ZONA_CATS.forEach(cat=>cat.zones.forEach(z=>{ZONA_MAP[z.code]=z;}));
 // ESTADO DE FILTROS — INDEPENDIENTES
 // ============================================================
 const activeCorr = new Set();
-const activeZona = new Set(Object.keys(ZONA_MAP));
+const activeZona = new Set();
 
 // ============================================================
 // CAPAS
@@ -512,10 +555,156 @@ function buscarCoordenadas() {
     '<b style="color:#c8961a;">Zona:</b> '+zonaInfo;
 }
 
-// Enter en campos también busca
+// ============================================================
+// MODO CLIC EN MAPA
+// ============================================================
+let clickModeActive = false;
+function toggleClickMode() {
+  clickModeActive = !clickModeActive;
+  const btn = document.getElementById('click-mode-btn');
+  if(clickModeActive) {
+    btn.textContent = '✅ Modo activo — haz clic en el mapa';
+    btn.classList.add('active');
+    map.getContainer().style.cursor = 'crosshair';
+  } else {
+    btn.textContent = 'Activar modo clic';
+    btn.classList.remove('active');
+    map.getContainer().style.cursor = '';
+    document.getElementById('click-result').style.display = 'none';
+  }
+}
+
+map.on('click', function(e) {
+  if(!clickModeActive) return;
+  const lat = e.latlng.lat;
+  const lng = e.latlng.lng;
+  const pt = [lng, lat];
+  const result = document.getElementById('click-result');
+
+  // Verificar dentro del distrito
+  if(corrData) {
+    const dentro = corrData.features.some(f => pointInFeature(pt, f));
+    if(!dentro) {
+      result.style.display = 'block';
+      result.innerHTML = '⚠️ Punto fuera del Distrito de Santiago.';
+      return;
+    }
+  }
+
+  // Marcador
+  if(searchMarker) map.removeLayer(searchMarker);
+  searchMarker = L.marker([lat, lng], {
+    icon: L.divIcon({
+      className:'',
+      html:'<div style="width:16px;height:16px;background:#27ae60;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.4);"></div>',
+      iconAnchor:[8,8]
+    })
+  }).addTo(map);
+
+  // Buscar corregimiento
+  let corrNomb = '—';
+  if(corrData) {
+    for(const f of corrData.features) {
+      if(pointInFeature(pt, f)) { corrNomb = f.properties.CORR_NOMB || '—'; break; }
+    }
+  }
+
+  // Buscar zona
+  let zonaInfo = '<span style="color:#e74c3c;font-weight:600;">Sin zonificación asignada</span>';
+  if(zonaData) {
+    for(const f of zonaData.features) {
+      if(pointInFeature(pt, f)) {
+        const ref = f.properties.RefName;
+        const z = ZONA_MAP[ref];
+        zonaInfo = z
+          ? '<span style="background:'+z.color+';color:#333;padding:2px 8px;border-radius:8px;font-weight:700;border:1px solid rgba(0,0,0,0.15);">'+ref+'</span> '+z.name
+          : ref || 'Sin clasificar';
+        break;
+      }
+    }
+  }
+
+  result.style.display = 'block';
+  result.innerHTML =
+    '<b style="color:#1a3a5c;">📍 Lat: '+lat.toFixed(6)+' | Lng: '+lng.toFixed(6)+'</b><hr style="margin:4px 0">'+
+    '<b style="color:#4a235a;">Corregimiento:</b> '+corrNomb+'<br>'+
+    '<b style="color:#c8961a;">Zona:</b> '+zonaInfo;
+
+  // Ir a tab buscar para ver resultado
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-buscar').classList.add('active');
+  document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+});
+
+// ============================================================
+// CONVERTIDOR UTM ZONA 17N → LAT/LNG
+// ============================================================
+function convertirUTM() {
+  const E = parseFloat(document.getElementById('input-utm-e').value);
+  const N = parseFloat(document.getElementById('input-utm-n').value);
+  const result = document.getElementById('utm-result');
+
+  if(isNaN(E) || isNaN(N)) {
+    result.style.display='block'; result.className='search-result-box error';
+    result.innerHTML='⚠️ Ingresa coordenadas UTM válidas.'; return;
+  }
+
+  // Conversión UTM zona 17N (WGS84) a Lat/Lng
+  // Constantes WGS84
+  const a = 6378137.0;
+  const f = 1/298.257223563;
+  const b = a*(1-f);
+  const e2 = 1 - (b*b)/(a*a);
+  const e1 = (1 - Math.sqrt(1-e2))/(1 + Math.sqrt(1-e2));
+  const k0 = 0.9996;
+  const E0 = 500000;
+  const N0 = 0; // Hemisferio norte
+  const lon0 = (-81) * Math.PI/180; // Zona 17N: meridiano central -81°
+
+  const x = E - E0;
+  const y = N - N0;
+  const M = y/k0;
+  const mu = M/(a*(1 - e2/4 - 3*e2*e2/64 - 5*e2*e2*e2/256));
+
+  const p1 = mu + (3*e1/2 - 27*e1*e1*e1/32)*Math.sin(2*mu);
+  const p2 = p1 + (21*e1*e1/16 - 55*e1*e1*e1*e1/32)*Math.sin(4*mu);
+  const p3 = p2 + (151*e1*e1*e1/96)*Math.sin(6*mu);
+  const phi1 = p3 + (1097*e1*e1*e1*e1/512)*Math.sin(8*mu);
+
+  const N1 = a/Math.sqrt(1 - e2*Math.sin(phi1)*Math.sin(phi1));
+  const T1 = Math.tan(phi1)*Math.tan(phi1);
+  const C1 = e2*Math.cos(phi1)*Math.cos(phi1)/(1-e2);
+  const R1 = a*(1-e2)/Math.pow(1-e2*Math.sin(phi1)*Math.sin(phi1), 1.5);
+  const D = x/(N1*k0);
+
+  const lat = phi1 - (N1*Math.tan(phi1)/R1)*(D*D/2 - (5+3*T1+10*C1-4*C1*C1-9*e2)*D*D*D*D/24);
+  const lon = lon0 + (D - (1+2*T1+C1)*D*D*D/6)/Math.cos(phi1);
+
+  const latDeg = lat*180/Math.PI;
+  const lonDeg = lon*180/Math.PI;
+
+  result.style.display='block'; result.className='search-result-box';
+  result.innerHTML=
+    '✅ <b>Resultado:</b><br>'+
+    'Lat: <b>'+latDeg.toFixed(6)+'</b><br>'+
+    'Lng: <b>'+lonDeg.toFixed(6)+'</b><br>'+
+    '<button class="btn-secondary" style="margin-top:6px;" onclick="usarResultadoUTM('+latDeg.toFixed(6)+','+lonDeg.toFixed(6)+')">Usar estas coordenadas →</button>';
+}
+
+function usarResultadoUTM(lat, lng) {
+  document.getElementById('input-lat').value = lat;
+  document.getElementById('input-lng').value = lng;
+  buscarCoordenadas();
+}
+
+// Enter en campos
 document.addEventListener('DOMContentLoaded',()=>{
   ['input-lat','input-lng'].forEach(id=>{
     document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')buscarCoordenadas();});
+  });
+  ['input-utm-e','input-utm-n'].forEach(id=>{
+    document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')convertirUTM();});
   });
 });
 
@@ -560,13 +749,13 @@ async function loadAll() {
 // ============================================================
 function buildCorrFilter(names) {
   activeCorr.clear();
-  names.forEach(n=>activeCorr.add(n.toUpperCase().trim()));
+  // activeCorr ya vacío al inicio
   const container=document.getElementById('corr-list');
   names.forEach(name=>{
     const key=name.toUpperCase().trim();
     const color=getCorrColor(name);
     const div=document.createElement('div'); div.className='corr-item';
-    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=true; cb.id='corr-'+key;
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=false; cb.id='corr-'+key;
     cb.addEventListener('change',()=>{
       if(cb.checked)activeCorr.add(key); else activeCorr.delete(key);
       updateAllCorrCheckbox(); applyFilters();
@@ -601,7 +790,7 @@ function buildZonaFilter() {
   ZONA_CATS.forEach(cat=>{
     const catDiv=document.createElement('div'); catDiv.className='zona-cat';
     const hdr=document.createElement('div'); hdr.className='zona-cat-header'; hdr.style.background=cat.color;
-    const catCb=document.createElement('input'); catCb.type='checkbox'; catCb.checked=true;
+    const catCb=document.createElement('input'); catCb.type='checkbox'; catCb.checked=false;
     const catLabel=document.createElement('span'); catLabel.textContent=cat.cat; catLabel.style.flex='1';
     const arrow=document.createElement('span'); arrow.className='zona-cat-arrow'; arrow.innerHTML='&#9658;';
     hdr.appendChild(catCb); hdr.appendChild(catLabel); hdr.appendChild(arrow);
@@ -609,7 +798,7 @@ function buildZonaFilter() {
     const codesDiv=document.createElement('div'); codesDiv.className='zona-codes';
     cat.zones.forEach(z=>{
       const row=document.createElement('div'); row.className='zona-code-item';
-      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=true; cb.id='zona-'+z.code;
+      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=false; cb.id='zona-'+z.code;
       cb.addEventListener('change',()=>{
         if(cb.checked)activeZona.add(z.code); else activeZona.delete(z.code);
         updateCatCheckbox(catCb,cat); updateAllZonaCheckbox(); applyFilters();
