@@ -194,20 +194,7 @@
 
     <!-- TAB FILTROS -->
     <div id="tab-filtros" class="tab-panel active">
-      <div class="filter-section">
-        <div class="filter-section-header" onclick="toggleSection(this)">
-          <span class="fs-dot" style="background:#4a235a"></span>
-          <span>Corregimientos</span>
-          <span class="fs-arrow open">&#9658;</span>
-        </div>
-        <div class="filter-section-body open">
-          <div class="toggle-all-row">
-            <input type="checkbox" id="corr-all" onchange="toggleAllCorr(this.checked)">
-            <label for="corr-all">Todos / Ninguno</label>
-          </div>
-          <div id="corr-list"></div>
-        </div>
-      </div>
+      <!-- ZONIFICACIÓN — expandida por defecto -->
       <div class="filter-section">
         <div class="filter-section-header" onclick="toggleSection(this)">
           <span class="fs-dot" style="background:#c8961a"></span>
@@ -220,6 +207,21 @@
             <label for="zona-all">Todos / Ninguno</label>
           </div>
           <div id="zona-list"></div>
+        </div>
+      </div>
+      <!-- CORREGIMIENTOS — contraído por defecto -->
+      <div class="filter-section">
+        <div class="filter-section-header" onclick="toggleSection(this)">
+          <span class="fs-dot" style="background:#4a235a"></span>
+          <span>Corregimientos</span>
+          <span class="fs-arrow">&#9658;</span>
+        </div>
+        <div class="filter-section-body">
+          <div class="toggle-all-row">
+            <input type="checkbox" id="corr-all" onchange="toggleAllCorr(this.checked)">
+            <label for="corr-all">Todos / Ninguno</label>
+          </div>
+          <div id="corr-list"></div>
         </div>
       </div>
     </div>
