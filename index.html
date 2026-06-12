@@ -41,6 +41,7 @@
     border-right:1px solid #eef0f4;
   }
   .tab-btn:last-child { border-right:none; }
+  .tab-btn-hidden { display:none !important; }
   .tab-btn.active { background:#1a3a5c; color:#fff; }
   .tab-btn:hover:not(.active) { background:#edf2f8; color:#1a3a5c; }
   .tab-panel { display:none; flex:1; overflow-y:auto; flex-direction:column; }
@@ -189,7 +190,6 @@
     <div id="panel-tabs">
       <button class="tab-btn active" onclick="switchTab('filtros',this)">Filtros</button>
       <button class="tab-btn" onclick="switchTab('buscar',this)">Buscar</button>
-      <button class="tab-btn" onclick="switchTab('info',this)">Elemento</button>
     </div>
 
     <!-- TAB FILTROS -->
@@ -257,14 +257,14 @@
         </div>
         <div id="utm-result" class="search-result-box"></div>
 
+
       </div>
     </div>
 
-    <!-- TAB ELEMENTO -->
+    <!-- TAB ACUERDO N°37 — oculto en tabs pero activo en JS -->
     <div id="tab-info" class="tab-panel">
-      <div id="tab-info-content">
-        <div class="info-title">Información de elemento</div>
-        <div id="feature-info" class="empty">Haz clic en un elemento del mapa</div>
+      <div id="tab-info-content" style="padding:12px 14px;flex:1;">
+        <div id="feature-info" class="empty" style="font-size:12px;color:#2c3e50;line-height:1.6;">Haz clic en una zona del mapa</div>
       </div>
     </div>
 
@@ -289,6 +289,9 @@
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  // Ocultar panel acuerdo si se cambia de tab manualmente
+  const ap=document.getElementById('acuerdo-panel');
+  if(ap && tab==='filtros') ap.style.display='none';
   document.getElementById('tab-'+name).classList.add('active');
   btn.classList.add('active');
 }
@@ -336,6 +339,44 @@ function getCorrColor(name) {
   let h=0; for(let i=0;i<u.length;i++) h=u.charCodeAt(i)+((h<<5)-h);
   return 'hsl('+(Math.abs(h)%360)+',55%,42%)';
 }
+
+
+// =============================================================
+// ZONAS_PLOT — Definiciones oficiales Acuerdo Municipal N°37
+// Plan Local de Ordenamiento Territorial (PLOT)
+// Distrito de Santiago de Veraguas · Gaceta Oficial N°30440-A
+// Artículo 12: Clasificación del Suelo Urbano
+// =============================================================
+const ZONAS_PLOT = {
+  "RR":    { emoji:"🌾", actividad:"ACTIVIDAD AGROPECUARIA",      descripcion:"Conjunto residencial de viviendas unifamiliares aisladas con amplios espacios libres por parcela, donde predomina el desarrollo horizontal. Las áreas verdes superficiales están combinadas con algunos servicios básicos comunitarios." },
+  "R1":    { emoji:"🏡", actividad:"ACTIVIDAD RESIDENCIAL",        descripcion:"Conjunto residencial de viviendas unifamiliares, adosadas con amplios espacios libres por parcela, donde predomina el desarrollo horizontal. Las áreas verdes superficiales están combinadas con algunos servicios básicos comunitarios." },
+  "R2":    { emoji:"🏘️", actividad:"ACTIVIDAD RESIDENCIAL",        descripcion:"Conjunto residencial de viviendas de apartamentos con amplios espacios libres por parcela, donde sigue predominando la escala horizontal. Las áreas verdes superficiales están combinadas con algunos servicios básicos comunitarios." },
+  "RM1":   { emoji:"🏢", actividad:"ACTIVIDAD RESIDENCIAL",        descripcion:"Conjunto residencial de viviendas de apartamentos con suficientes espacios libres por parcela, donde predomina la escala vertical. Las áreas verdes superficiales están combinadas con algunos servicios básicos comunitarios." },
+  "C1":    { emoji:"🏪", actividad:"ACTIVIDAD COMERCIAL URBANO",   descripcion:"Actividades comerciales compra/venta de bienes y servicios. Incluye: Abastos y productos básicos (minisuper, mercadito, verdulerías, carnicerías, pescaderías, panaderías, fruterías y similares). Servicios (lavandería, farmacia, zapatería, salón de belleza, barbería, ferretería, cafetería, heladería, floristería, librería, gimnasios, guarderías, centros educativos, agencias de viajes). Servicios Médicos (clínicas, consultorio médico, laboratorio médico, ópticas y similares). Financieros (banco, casa de cambio, empeños). Oficinas administrativas (servicios corporativos, consultoras, ONG, organismos internacionales)." },
+  "C2":    { emoji:"🏬", actividad:"ACTIVIDAD COMERCIAL URBANO",   descripcion:"Actividades comerciales compra/venta de bienes y servicios al por mayor urbano. Incluye todo lo de C1, más: Plaza comercial y ventas de artículos del hogar (de vestir, equipos de oficina, equipo fotográfico, deportes, joyería). Hostales y moteles (categoría inferior al hotel que ofrece alojamiento y servicio de restaurante)." },
+  "MCU1":  { emoji:"🏙️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Combinación de distintos usos de suelo dentro de una misma comunidad: conviven un área comercial con oficina con zona residencial entre otros. Comercial C1 (baja intensidad); Residencial R1 (baja densidad); Institucional SIU (Servicio Institucional Urbano). Actividad complementaria: PRU, PI con sus respectivas restricciones." },
+  "MCU2":  { emoji:"🏙️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Combinación de distintos usos de suelo dentro de una misma comunidad: conviven un área comercial con oficina con zona residencial entre otros. Comercial C2 (mediana intensidad); Residencial R2 (mediana densidad); Institucional SIU; Transporte TTU; Gasolineras e instalaciones complementarias y terminal de transporte terrestre. Actividad complementaria: PRU, PI." },
+  "MCU3":  { emoji:"🏙️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Combinación de distintos usos de suelo dentro de una misma comunidad: conviven un área comercial con oficina con zona residencial entre otros. Comercial C3 (alta intensidad); Residencial RM1 (alta densidad); Institucional SIU; Transporte TTU; Gasolineras e instalaciones complementarias y terminal de transporte terrestre. Actividad complementaria: PRU, PI." },
+  "MCH":   { emoji:"🏛️", actividad:"ACTIVIDAD MIXTA / PROTECCIÓN", descripcion:"Zona mixta que combina residencial de baja densidad, comercial de baja intensidad, y espacios abiertos. Comercial C1 (baja intensidad); Turismo urbano TU; Residencial R1 (baja densidad); Institucional SIU. La Dirección Nacional de Patrimonio Histórico podría considerar usos adicionales cuando se demuestre que el uso propuesto armoniza con la preservación del área." },
+  "MRCH":  { emoji:"🏛️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Zona de uso mixto residencial y comercial ubicada en área de interés histórico-patrimonial del Distrito de Santiago, sujeta a las normas de conservación del patrimonio cultural establecidas en la Ley 31 de 2017." },
+  "TTU":   { emoji:"🚌", actividad:"ACTIVIDAD TRANSPORTE",         descripcion:"Regula el conjunto de actividades y edificaciones de transporte urbano que sirven de terminales de pasajeros o de carga, puntos de transbordo. Incluye: terminal de transporte urbano, interprovincial, internacional, piquera de transporte selectivo, centro de transbordo, terminal turístico, comercio al por menor de víveres y servicios comerciales, área de servicio y mantenimiento (gasolinera, talleres, y/o similares)." },
+  "TA":    { emoji:"✈️", actividad:"ACTIVIDAD TRANSPORTE",         descripcion:"Regula el conjunto de instalaciones y edificaciones que sirven como terminales de pasajeros, de carga y de servicios complementarios a los usuarios del sistema de transporte aéreo." },
+  "Pv":    { emoji:"🌳", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Regula los espacios abiertos destinados a la recreación vecinal como juegos infantiles, cancha de baloncesto, tenis o voleibol y similares, veredas peatonales, además de sus actividades complementarias como casetas de mantenimiento y caseta contra sol y/o lluvia." },
+  "PL":    { emoji:"⛲", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Área de asientos y observación, instalaciones efímeras para diversas actividades sociales, escultura pública y fuente, facilidades para consumir alimentos, anfiteatro. Actividad complementaria: Puestos de heladería, refresquería y kioscos, refugio contra sol y/o lluvia." },
+  "Prv":   { emoji:"🏞️", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Regula los espacios abiertos destinados a la recreación pasiva y activa de una comunidad donde se desarrollan actividades culturales y deportivas a escala vecinal como deporte, gimnasios, teatros, etc." },
+  "Pru":   { emoji:"🏟️", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Regula los espacios abiertos y cerrados, destinados a satisfacer la necesidad de recreación pasiva y activa en el centro urbano, donde se desarrollan actividades culturales y deportivas a escala urbana como: deportes, gimnasios, teatros, etc." },
+  "Pib":   { emoji:"🌿", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Regula los espacios abiertos destinados a la recreación pasiva y activa de un conglomerado de comunidades donde se desarrollan toda clase de actividades recreativas al aire libre." },
+  "IL":    { emoji:"🏭", actividad:"ACTIVIDAD INDUSTRIAL",         descripcion:"Son aquellas cuyo funcionamiento no produce perjuicios a las áreas vecinas, sin el uso de controles especiales. Incluye: Alimentos y bebidas, Textiles y calzado, Papel (libros, revistas, periódicos), Farmacéuticas, Cosméticos, Electrónica (ordenadores, laptops, cámaras, celulares), Muebles y artesanías, Logística (almacenamiento, embalaje y transporte mediante carga pesada)." },
+  "IM":    { emoji:"⚠️", actividad:"ACTIVIDAD INDUSTRIAL",         descripcion:"Son aquellas sin controles especiales cuyo funcionamiento podría causar perjuicio a las áreas residenciales. Incluye: Pecuaria (ganado bovino, porcino, caprino, ovino, equino, avícola), Química (combustibles, ácidos, fertilizantes, plásticos, explosivos, farmacéuticos, petroquímica), Siderúrgica, Cementera, Forestal, Automovilística, Industria extractiva (minería, producción maderera y de papel). Actividad Complementaria: C2, PRU, PL." },
+  "TRS":   { emoji:"♻️", actividad:"ACTIVIDAD INFRAESTRUCTURA",    descripcion:"Actividades de Gestión de los Residuos Sólidos Urbanos generados en domicilios particulares, comercios, oficinas y servicios. Incluye: Vertederos controlados, Centros de transferencia, Rellenos Sanitarios. Actividad complementaria: Ninguna." },
+  "INF":   { emoji:"⚡", actividad:"ACTIVIDAD INFRAESTRUCTURA",    descripcion:"Actividades de infraestructura como servicios e instalaciones necesarias para el desarrollo de la ciudad en cuanto a energía, comunicaciones y agua potable." },
+  "SIU":   { emoji:"🏥", actividad:"ACTIVIDAD INSTITUCIONAL",      descripcion:"Regula el conjunto de edificaciones destinadas al servicio de los residentes y usuarios a nivel urbano. Incluye: policlínicas, centro de atención de adictos, clínica general, clínicas especializadas, embajadas, centros culturales, corregidurías, colegios, cementerios, institutos tecnológicos, etc. Actividades secundarias permitidas: PRU, PI." },
+  "SINAP": { emoji:"🌲", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Área perteneciente al Sistema Nacional de Áreas Protegidas de Panamá. Zonas de conservación y preservación de los recursos naturales con restricciones especiales de uso del suelo según la legislación ambiental panameña vigente." },
+  "RBS":   { emoji:"🌱", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Área de reserva de bosque secundario destinada a la preservación y recuperación de la cobertura boscosa del territorio. Zona de protección ambiental con restricciones de desarrollo urbano." },
+  "CONSH": { emoji:"🏛️", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Conjunto de edificaciones declaradas Monumentos Históricos bajo la Ley 31 de 30 de mayo de 2017 en Santiago de Veraguas. La construcción, remodelación, adición u otra intervención están regidas por dicha Ley." },
+  "PND":   { emoji:"🚧", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Espacios abiertos que contienen sitios naturales en los que no se puede desarrollar ningún tipo de construcción, pero que pueden ser visitados de una comunidad o centro urbano." },
+  "LAGO":  { emoji:"💧", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Cuerpo hídrico natural o artificial sujeto a protección hídrica conforme a la Ley Nº1 del 3 de febrero de 1994. Se prohíbe expresamente causar daño o destruir los árboles o arbustos en las zonas circundantes al nacimiento de cualquier cauce natural de agua, así como en las áreas adyacentes a lagos, lagunas, ríos y quebradas." }
+};
 
 const ZONA_CATS = [
   {cat:'Residencial', color:'#7d6608', zones:[
@@ -459,22 +500,48 @@ function applyFilters() {
           const props=f.properties||{};
           const ref=props.RefName;
           const z=ref&&ZONA_MAP[ref]?ZONA_MAP[ref]:null;
-          // Popup minimalista
+          const zp=ref&&ZONAS_PLOT[ref]?ZONAS_PLOT[ref]:null;
+
+          // Popup minimalista en mapa
           const badgeColor=z?z.color:'#ccc';
           const badgeText=z?ref+' — '+z.name:ref||'Sin clasificar';
           const popupHtml=
             '<div style="text-align:center;padding:4px 8px;">'+
             '<span style="background:'+badgeColor+';color:#333;font-size:12px;font-weight:700;padding:3px 14px;border-radius:12px;display:inline-block;border:1px solid rgba(0,0,0,0.15);">'+badgeText+'</span>'+
-            '</div>';
-          L.popup({maxWidth:260}).setLatLng(e.latlng).setContent(popupHtml).openOn(map);
-          // Detalles en Elemento
-          const keys=Object.keys(props).filter(k=>props[k]!==null&&props[k]!=='');
-          let html='<strong style="color:#1a3a5c;font-size:13px;">Zonificación Urbana</strong>';
-          if(z) html+='<br><span style="background:'+z.color+';color:#333;font-size:12px;font-weight:600;padding:2px 10px;border-radius:10px;border:1px solid rgba(0,0,0,0.15);">'+ref+' — '+z.name+'</span>';
-          html+='<br><hr style="margin:5px 0">';
-          keys.forEach(k=>{html+='<span style="font-size:11px;color:#777;">'+k+':</span> <b style="font-size:12px;color:#1a1a2e;">'+props[k]+'</b><br>';});
+            (zp?'<br><span style="font-size:10px;color:#555;margin-top:4px;display:block;">'+zp.actividad+'</span>':'')+'</div>';
+          L.popup({maxWidth:280}).setLatLng(e.latlng).setContent(popupHtml).openOn(map);
+
+          // Panel Elemento — con descripción del Acuerdo N°37
+          let html='';
+          if(z && zp) {
+            html+=
+              '<div style="background:'+z.color+';padding:10px 12px;border-radius:6px 6px 0 0;margin-bottom:0;">'+
+                '<div style="font-size:9px;font-weight:600;color:rgba(0,0,0,0.55);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">'+zp.emoji+' '+zp.actividad+'</div>'+
+                '<div style="font-size:13px;font-weight:700;color:#1a1a2e;line-height:1.3;">'+z.name+'</div>'+
+                '<div style="display:inline-block;margin-top:5px;background:rgba(0,0,0,0.18);color:#fff;padding:1px 10px;border-radius:10px;font-size:11px;font-weight:700;letter-spacing:.5px;">'+ref+'</div>'+
+              '</div>'+
+              '<div style="background:#f7f9fc;padding:10px 12px;font-size:11.5px;line-height:1.7;color:#2c3e50;border:1px solid #dce3ed;border-top:none;border-radius:0 0 6px 6px;margin-bottom:8px;">'+
+                zp.descripcion+
+              '</div>'+
+              '<div style="font-size:10px;color:#95a5a6;font-style:italic;text-align:center;padding:0 4px 6px;">'+
+                'Acuerdo Municipal N°37 · Art. 12 · Gaceta Oficial N°30440-A · 08 ene. 2026'+
+              '</div>';
+          } else if(z) {
+            html+='<strong style="color:#1a3a5c;font-size:13px;">Zonificación Urbana</strong>';
+            html+='<br><span style="background:'+z.color+';color:#333;font-size:12px;font-weight:600;padding:2px 10px;border-radius:10px;border:1px solid rgba(0,0,0,0.15);">'+ref+' — '+z.name+'</span>';
+            html+='<br><hr style="margin:5px 0">';
+          } else {
+            html+='<strong style="color:#1a3a5c;">Código: '+ref+'</strong><br><span style="color:#999;font-size:11px;">Sin clasificar en el PLOT</span>';
+          }
+
           document.getElementById('feature-info').classList.remove('empty');
           document.getElementById('feature-info').innerHTML=html;
+          document.getElementById('acuerdo-panel').style.display='block';
+          // Asegurar que tab buscar está activo
+          document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+          document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+          document.getElementById('tab-buscar').classList.add('active');
+          document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
         });
       }
     }).addTo(map);
@@ -624,13 +691,70 @@ map.on('click', function(e) {
     }
   }
 
+  // Popup en el marcador verde
+  const z_popup = (() => {
+    if(!zonaData) return null;
+    for(const f of zonaData.features) {
+      if(pointInFeature(pt, f)) {
+        const ref = f.properties.RefName;
+        return ZONA_MAP[ref] ? {ref, ...ZONA_MAP[ref]} : {ref, color:'#ccc', name: ref};
+      }
+    }
+    return null;
+  })();
+
+  const popupContent =
+    '<div style="padding:6px 10px;min-width:180px;">'+
+    '<div style="font-size:10px;color:#777;margin-bottom:3px;">📍 '+lat.toFixed(6)+' | '+lng.toFixed(6)+'</div>'+
+    '<div style="font-size:11px;margin-bottom:4px;"><b style="color:#1a3a5c;">Corregimiento:</b> '+corrNomb+'</div>'+
+    (z_popup
+      ? '<div><span style="background:'+z_popup.color+';color:#333;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;border:1px solid rgba(0,0,0,0.15);">'+z_popup.ref+'</span> '+
+        '<span style="font-size:11px;color:#333;"> '+z_popup.name+'</span></div>'
+      : '<div style="font-size:11px;color:#e74c3c;">Sin zonificación asignada</div>')+
+    '</div>';
+  L.popup({maxWidth:280}).setLatLng([lat,lng]).setContent(popupContent).openOn(map);
+
   result.style.display = 'block';
   result.innerHTML =
     '<b style="color:#1a3a5c;">📍 Lat: '+lat.toFixed(6)+' | Lng: '+lng.toFixed(6)+'</b><hr style="margin:4px 0">'+
     '<b style="color:#4a235a;">Corregimiento:</b> '+corrNomb+'<br>'+
     '<b style="color:#c8961a;">Zona:</b> '+zonaInfo;
 
-  // Ir a tab buscar para ver resultado
+  // ── Descripción Acuerdo N°37 — directo en click-result ──────
+  const clickResult = document.getElementById('click-result');
+  if(z_popup && ZONAS_PLOT[z_popup.ref]) {
+    const zp = ZONAS_PLOT[z_popup.ref];
+    const z  = ZONA_MAP[z_popup.ref];
+    clickResult.innerHTML =
+      '<b style="color:#1a3a5c;">📍 Lat: '+lat.toFixed(6)+' | Lng: '+lng.toFixed(6)+'</b>'+
+      (()=>{const u=latLngToUTM17N(lat,lng);return '<br><span style="font-size:10px;color:#6a8aaa;">📐 UTM 17N &nbsp; E: <b>'+u.E.toFixed(2)+'</b> &nbsp; N: <b>'+u.N.toFixed(2)+'</b></span>';})() +
+      '<hr style="margin:4px 0">'+
+      '<b style="color:#4a235a;">Corregimiento:</b> '+corrNomb+'<br>'+
+      '<b style="color:#c8961a;">Zona:</b> '+zonaInfo+
+      '<div style="margin-top:10px;border-radius:8px;overflow:hidden;border:1px solid #dce3ed;">'+
+        '<div style="background:'+z_popup.color+';padding:9px 12px;">'+
+          '<div style="font-size:9px;font-weight:600;color:rgba(0,0,0,0.55);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">'+zp.emoji+' '+zp.actividad+'</div>'+
+          '<div style="font-size:12px;font-weight:700;color:#1a1a2e;line-height:1.3;">'+z.name+'</div>'+
+          '<span style="display:inline-block;margin-top:4px;background:rgba(0,0,0,0.2);color:#fff;padding:1px 9px;border-radius:9px;font-size:11px;font-weight:700;">'+z_popup.ref+'</span>'+
+        '</div>'+
+        '<div style="background:#f7f9fc;padding:9px 12px;font-size:11px;line-height:1.65;color:#2c3e50;">'+
+          zp.descripcion+
+        '</div>'+
+        '<div style="padding:5px 12px 7px;font-size:9.5px;color:#aaa;font-style:italic;text-align:center;">'+
+          'Acuerdo Municipal N°37 · Art. 12 · Gaceta Oficial N°30440-A · 08 ene. 2026'+
+        '</div>'+
+      '</div>';
+  } else {
+    clickResult.innerHTML =
+      '<b style="color:#1a3a5c;">📍 Lat: '+lat.toFixed(6)+' | Lng: '+lng.toFixed(6)+'</b>'+
+      (()=>{const u=latLngToUTM17N(lat,lng);return '<br><span style="font-size:10px;color:#6a8aaa;">📐 UTM 17N &nbsp; E: <b>'+u.E.toFixed(2)+'</b> &nbsp; N: <b>'+u.N.toFixed(2)+'</b></span>';})() +
+      '<hr style="margin:4px 0">'+
+      '<b style="color:#4a235a;">Corregimiento:</b> '+corrNomb+'<br>'+
+      '<span style="color:#e74c3c;font-size:11px;">Sin zonificación clasificada en el PLOT para este punto.</span>';
+  }
+  clickResult.style.display = 'block';
+
+  // Mantener en tab Buscar
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-buscar').classList.add('active');
@@ -638,6 +762,37 @@ map.on('click', function(e) {
 });
 
 // ============================================================
+// ============================================================
+// CONVERSIÓN LAT/LNG → UTM ZONA 17N (WGS84)
+// ============================================================
+function latLngToUTM17N(latDeg, lngDeg) {
+  const a  = 6378137.0;
+  const f  = 1/298.257223563;
+  const b  = a*(1-f);
+  const e2 = 1-(b*b)/(a*a);
+  const k0 = 0.9996;
+  const E0 = 500000;
+  const lon0 = -81 * Math.PI/180; // Zona 17N, meridiano central -81°
+
+  const lat = latDeg * Math.PI/180;
+  const lon = lngDeg * Math.PI/180;
+
+  const N = a/Math.sqrt(1-e2*Math.sin(lat)*Math.sin(lat));
+  const T = Math.tan(lat)*Math.tan(lat);
+  const C = e2*Math.cos(lat)*Math.cos(lat)/(1-e2);
+  const A = Math.cos(lat)*(lon-lon0);
+
+  const M = a*((1-e2/4-3*e2*e2/64-5*e2*e2*e2/256)*lat
+              -(3*e2/8+3*e2*e2/32+45*e2*e2*e2/1024)*Math.sin(2*lat)
+              +(15*e2*e2/256+45*e2*e2*e2/1024)*Math.sin(4*lat)
+              -(35*e2*e2*e2/3072)*Math.sin(6*lat));
+
+  const E = E0 + k0*N*(A+(1-T+C)*A*A*A/6+(5-18*T+T*T+72*C-58*e2)*A*A*A*A*A/120);
+  const Nv = k0*(M + N*Math.tan(lat)*(A*A/2+(5-T+9*C+4*C*C)*A*A*A*A/24+(61-58*T+T*T+600*C-330*e2)*A*A*A*A*A*A/720));
+
+  return { E: Math.round(E), N: Math.round(Nv) };
+}
+
 // CONVERTIDOR UTM ZONA 17N → LAT/LNG
 // ============================================================
 function convertirUTM() {
