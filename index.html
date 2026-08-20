@@ -41,13 +41,10 @@
     border-right:1px solid #eef0f4;
   }
   .tab-btn:last-child { border-right:none; }
-  .tab-btn-hidden { display:none !important; }
   .tab-btn.active { background:#1a3a5c; color:#fff; }
   .tab-btn:hover:not(.active) { background:#edf2f8; color:#1a3a5c; }
   .tab-panel { display:none; flex:1; overflow-y:auto; flex-direction:column; }
   .tab-panel.active { display:flex; }
-
-  /* FILTROS */
   .filter-section { border-bottom:1px solid #eef0f4; }
   .filter-section-header {
     display:flex; align-items:center; gap:8px; padding:9px 14px;
@@ -93,8 +90,6 @@
   .zona-code-item input { accent-color:#1a3a5c; width:12px; height:12px; cursor:pointer; flex-shrink:0; }
   .zona-code-swatch { width:14px; height:9px; border-radius:2px; flex-shrink:0; border:1px solid rgba(0,0,0,0.15); }
   .zona-code-bold { font-weight:700; color:#1a3a5c; margin-right:3px; }
-
-  /* BUSCADOR */
   #search-box { padding:12px 14px; flex:1; overflow-y:auto; }
   .search-section-title {
     font-size:10px; font-weight:700; color:#fff; text-transform:uppercase;
@@ -136,14 +131,6 @@
     background:#f7f9fc; border-radius:4px; padding:8px 10px;
     display:none; border-left:3px solid #27ae60;
   }
-
-  /* ELEMENTO */
-  #tab-info-content { padding:12px 14px; flex:1; }
-  .info-title { font-size:10px; font-weight:600; color:#7a8aaa; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
-  #feature-info { font-size:12px; color:#2c3e50; line-height:1.6; }
-  #feature-info.empty { color:#aaa; font-style:italic; }
-
-  /* MAPA */
   .map-ctrl-btn {
     background:#fff; border:1px solid #ccc; border-radius:4px;
     padding:6px 10px; font-size:12px; cursor:pointer;
@@ -229,14 +216,11 @@
     <!-- TAB BUSCAR -->
     <div id="tab-buscar" class="tab-panel">
       <div id="search-box">
-
-        <!-- SECCIÓN 1: CLIC EN MAPA -->
         <span class="search-section-title">📍 Clic en el Mapa</span>
         <div class="search-hint">Activa el modo y haz clic sobre cualquier punto del Distrito para consultar su zonificación.</div>
         <button id="click-mode-btn" onclick="toggleClickMode()">Activar modo clic</button>
         <div id="click-result"></div>
 
-        <!-- SECCIÓN 2: LAT/LNG -->
         <span class="search-section-title">🌐 Por Latitud / Longitud</span>
         <div class="search-row">
           <input type="number" id="input-lat" placeholder="Latitud (ej: 8.1050)" step="0.0001">
@@ -247,7 +231,6 @@
         </div>
         <div id="search-result" class="search-result-box"></div>
 
-        <!-- SECCIÓN 3: CONVERTIDOR UTM -->
         <span class="search-section-title">📐 Convertir UTM → Lat/Lng</span>
         <div class="search-hint">Zona UTM 17N (EPSG:32617) — Sistema usado en Panama</div>
         <div class="search-row">
@@ -258,15 +241,6 @@
           <button class="btn-action" onclick="convertirUTM()">Convertir</button>
         </div>
         <div id="utm-result" class="search-result-box"></div>
-
-
-      </div>
-    </div>
-
-    <!-- TAB ACUERDO N°37 — oculto en tabs pero activo en JS -->
-    <div id="tab-info" class="tab-panel">
-      <div id="tab-info-content" style="padding:12px 14px;flex:1;">
-        <div id="feature-info" class="empty" style="font-size:12px;color:#2c3e50;line-height:1.6;">Haz clic en una zona del mapa</div>
       </div>
     </div>
 
@@ -291,9 +265,6 @@
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  // Ocultar panel acuerdo si se cambia de tab manualmente
-  const ap=document.getElementById('acuerdo-panel');
-  if(ap && tab==='filtros') ap.style.display='none';
   document.getElementById('tab-'+name).classList.add('active');
   btn.classList.add('active');
 }
@@ -302,9 +273,7 @@ function toggleSection(hdr) {
   hdr.querySelector('.fs-arrow').classList.toggle('open');
 }
 
-// ============================================================
-// MAPA
-// ============================================================
+// ── MAPA ────────────────────────────────────────────────────
 const map = L.map('map',{center:[8.1,-80.98],zoom:11});
 const BASEMAPS = {
   osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}),
@@ -322,17 +291,17 @@ map.on('mousemove',e=>{
   document.getElementById('coords').textContent='Lat: '+e.latlng.lat.toFixed(5)+'  Lng: '+e.latlng.lng.toFixed(5);
 });
 
-// ============================================================
-// COLORES
-// ============================================================
+// ── COLORES CORREGIMIENTOS ──────────────────────────────────
 const CORR_COLORS = {
-  'URRACA':'hsl(0,65%,50%)', 'SANTIAGO':'hsl(210,65%,45%)',
-  'LA MESA':'hsl(140,55%,40%)', 'SAN MARTIN DE PORRES':'hsl(280,50%,45%)',
-  'LA COLORADA':'hsl(30,80%,48%)', 'CANTO DEL LLANO':'hsl(170,55%,38%)',
-  'CARLOS SANTANA AVILA':'hsl(20,70%,45%)', 'LA PEÑA':'hsl(160,55%,35%)',
-  'LOS ALGARROBOS':'hsl(265,45%,48%)', 'PONUGA':'hsl(350,60%,42%)',
-  'SAN PEDRO DEL ESPINO':'hsl(100,50%,38%)', 'RUFINA ALFARO':'hsl(25,70%,42%)',
-  'RODRIGUEZ DE MENDOZA':'hsl(200,60%,40%)',
+  'URRACA':'hsl(0,65%,50%)','SANTIAGO':'hsl(210,65%,45%)',
+  'LA MESA':'hsl(140,55%,40%)','SAN MARTIN DE PORRES':'hsl(280,50%,45%)',
+  'LA COLORADA':'hsl(30,80%,48%)','CANTO DEL LLANO':'hsl(170,55%,38%)',
+  'CARLOS SANTANA AVILA':'hsl(20,70%,45%)','LA PEÑA':'hsl(160,55%,35%)',
+  'LOS ALGARROBOS':'hsl(265,45%,48%)','PONUGA':'hsl(350,60%,42%)',
+  'SAN PEDRO DEL ESPINO':'hsl(100,50%,38%)','RUFINA ALFARO':'hsl(25,70%,42%)',
+  'RODRIGO LUQUE':'hsl(200,60%,40%)','NUEVO SANTIAGO':'hsl(55,70%,42%)',
+  'EDWIN FABREGAS':'hsl(185,55%,40%)','SANTIAGO ESTE':'hsl(230,55%,45%)',
+  'SANTIAGO SUR':'hsl(240,55%,45%)',
 };
 function getCorrColor(name) {
   if(!name) return '#aaa';
@@ -342,13 +311,7 @@ function getCorrColor(name) {
   return 'hsl('+(Math.abs(h)%360)+',55%,42%)';
 }
 
-
-// =============================================================
-// ZONAS_PLOT — Definiciones oficiales Acuerdo Municipal N°37
-// Plan Local de Ordenamiento Territorial (PLOT)
-// Distrito de Santiago de Veraguas · Gaceta Oficial N°30440-A
-// Artículo 12: Clasificación del Suelo Urbano
-// =============================================================
+// ── DICCIONARIO ACUERDO N°37 ────────────────────────────────
 const ZONAS_PLOT = {
   "RR":    { emoji:"🌾", actividad:"ACTIVIDAD AGROPECUARIA",      descripcion:"Conjunto residencial de viviendas unifamiliares aisladas con amplios espacios libres por parcela, donde predomina el desarrollo horizontal. Las áreas verdes superficiales están combinadas con algunos servicios básicos comunitarios." },
   "R1":    { emoji:"🏡", actividad:"ACTIVIDAD RESIDENCIAL",        descripcion:"Conjunto residencial de viviendas unifamiliares, adosadas con amplios espacios libres por parcela, donde predomina el desarrollo horizontal. Las áreas verdes superficiales están combinadas con algunos servicios básicos comunitarios." },
@@ -356,28 +319,28 @@ const ZONAS_PLOT = {
   "RM1":   { emoji:"🏢", actividad:"ACTIVIDAD RESIDENCIAL",        descripcion:"Conjunto residencial de viviendas de apartamentos con suficientes espacios libres por parcela, donde predomina la escala vertical. Las áreas verdes superficiales están combinadas con algunos servicios básicos comunitarios." },
   "C1":    { emoji:"🏪", actividad:"ACTIVIDAD COMERCIAL URBANO",   descripcion:"Actividades comerciales compra/venta de bienes y servicios. Incluye: Abastos y productos básicos (minisuper, mercadito, verdulerías, carnicerías, pescaderías, panaderías, fruterías y similares). Servicios (lavandería, farmacia, zapatería, salón de belleza, barbería, ferretería, cafetería, heladería, floristería, librería, gimnasios, guarderías, centros educativos, agencias de viajes). Servicios Médicos (clínicas, consultorio médico, laboratorio médico, ópticas y similares). Financieros (banco, casa de cambio, empeños). Oficinas administrativas (servicios corporativos, consultoras, ONG, organismos internacionales)." },
   "C2":    { emoji:"🏬", actividad:"ACTIVIDAD COMERCIAL URBANO",   descripcion:"Actividades comerciales compra/venta de bienes y servicios al por mayor urbano. Incluye todo lo de C1, más: Plaza comercial y ventas de artículos del hogar (de vestir, equipos de oficina, equipo fotográfico, deportes, joyería). Hostales y moteles (categoría inferior al hotel que ofrece alojamiento y servicio de restaurante)." },
-  "MCU1":  { emoji:"🏙️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Combinación de distintos usos de suelo dentro de una misma comunidad: conviven un área comercial con oficina con zona residencial entre otros. Comercial C1 (baja intensidad); Residencial R1 (baja densidad); Institucional SIU (Servicio Institucional Urbano). Actividad complementaria: PRU, PI con sus respectivas restricciones." },
-  "MCU2":  { emoji:"🏙️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Combinación de distintos usos de suelo dentro de una misma comunidad: conviven un área comercial con oficina con zona residencial entre otros. Comercial C2 (mediana intensidad); Residencial R2 (mediana densidad); Institucional SIU; Transporte TTU; Gasolineras e instalaciones complementarias y terminal de transporte terrestre. Actividad complementaria: PRU, PI." },
-  "MCU3":  { emoji:"🏙️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Combinación de distintos usos de suelo dentro de una misma comunidad: conviven un área comercial con oficina con zona residencial entre otros. Comercial C3 (alta intensidad); Residencial RM1 (alta densidad); Institucional SIU; Transporte TTU; Gasolineras e instalaciones complementarias y terminal de transporte terrestre. Actividad complementaria: PRU, PI." },
-  "MCH":   { emoji:"🏛️", actividad:"ACTIVIDAD MIXTA / PROTECCIÓN", descripcion:"Zona mixta que combina residencial de baja densidad, comercial de baja intensidad, y espacios abiertos. Comercial C1 (baja intensidad); Turismo urbano TU; Residencial R1 (baja densidad); Institucional SIU. La Dirección Nacional de Patrimonio Histórico podría considerar usos adicionales cuando se demuestre que el uso propuesto armoniza con la preservación del área." },
+  "MCU1":  { emoji:"🏙️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Combinación de distintos usos de suelo dentro de una misma comunidad: conviven un área comercial con oficina con zona residencial entre otros. Comercial C1 (baja intensidad); Residencial R1 (baja densidad); Institucional SIU. Actividad complementaria: PRU, PI." },
+  "MCU2":  { emoji:"🏙️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Combinación de distintos usos de suelo dentro de una misma comunidad. Comercial C2 (mediana intensidad); Residencial R2 (mediana densidad); Institucional SIU; Transporte TTU; Gasolineras e instalaciones complementarias y terminal de transporte terrestre. Actividad complementaria: PRU, PI." },
+  "MCU3":  { emoji:"🏙️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Combinación de distintos usos de suelo dentro de una misma comunidad. Comercial C3 (alta intensidad); Residencial RM1 (alta densidad); Institucional SIU; Transporte TTU; Gasolineras e instalaciones complementarias y terminal de transporte terrestre. Actividad complementaria: PRU, PI." },
+  "MCH":   { emoji:"🏛️", actividad:"ACTIVIDAD MIXTA / PROTECCIÓN", descripcion:"Zona mixta que combina residencial de baja densidad, comercial de baja intensidad, y espacios abiertos. Comercial C1; Turismo urbano TU; Residencial R1; Institucional SIU. La Dirección Nacional de Patrimonio Histórico podría considerar usos adicionales cuando se demuestre que el uso propuesto armoniza con la preservación del área." },
   "MRCH":  { emoji:"🏛️", actividad:"ACTIVIDAD MIXTA",              descripcion:"Zona de uso mixto residencial y comercial ubicada en área de interés histórico-patrimonial del Distrito de Santiago, sujeta a las normas de conservación del patrimonio cultural establecidas en la Ley 31 de 2017." },
-  "TTU":   { emoji:"🚌", actividad:"ACTIVIDAD TRANSPORTE",         descripcion:"Regula el conjunto de actividades y edificaciones de transporte urbano que sirven de terminales de pasajeros o de carga, puntos de transbordo. Incluye: terminal de transporte urbano, interprovincial, internacional, piquera de transporte selectivo, centro de transbordo, terminal turístico, comercio al por menor de víveres y servicios comerciales, área de servicio y mantenimiento (gasolinera, talleres, y/o similares)." },
+  "TTU":   { emoji:"🚌", actividad:"ACTIVIDAD TRANSPORTE",         descripcion:"Regula el conjunto de actividades y edificaciones de transporte urbano. Incluye: terminal de transporte urbano, interprovincial, internacional, piquera de transporte selectivo, centro de transbordo, terminal turístico, comercio al por menor de víveres y servicios comerciales, área de servicio y mantenimiento (gasolinera, talleres, y/o similares)." },
   "TA":    { emoji:"✈️", actividad:"ACTIVIDAD TRANSPORTE",         descripcion:"Regula el conjunto de instalaciones y edificaciones que sirven como terminales de pasajeros, de carga y de servicios complementarios a los usuarios del sistema de transporte aéreo." },
   "Pv":    { emoji:"🌳", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Regula los espacios abiertos destinados a la recreación vecinal como juegos infantiles, cancha de baloncesto, tenis o voleibol y similares, veredas peatonales, además de sus actividades complementarias como casetas de mantenimiento y caseta contra sol y/o lluvia." },
   "PL":    { emoji:"⛲", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Área de asientos y observación, instalaciones efímeras para diversas actividades sociales, escultura pública y fuente, facilidades para consumir alimentos, anfiteatro. Actividad complementaria: Puestos de heladería, refresquería y kioscos, refugio contra sol y/o lluvia." },
   "Prv":   { emoji:"🏞️", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Regula los espacios abiertos destinados a la recreación pasiva y activa de una comunidad donde se desarrollan actividades culturales y deportivas a escala vecinal como deporte, gimnasios, teatros, etc." },
-  "Pru":   { emoji:"🏟️", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Regula los espacios abiertos y cerrados, destinados a satisfacer la necesidad de recreación pasiva y activa en el centro urbano, donde se desarrollan actividades culturales y deportivas a escala urbana como: deportes, gimnasios, teatros, etc." },
+  "Pru":   { emoji:"🏟️", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Regula los espacios abiertos y cerrados destinados a satisfacer la necesidad de recreación pasiva y activa en el centro urbano, donde se desarrollan actividades culturales y deportivas a escala urbana." },
   "Pib":   { emoji:"🌿", actividad:"ACTIVIDAD ESPACIOS ABIERTOS",  descripcion:"Regula los espacios abiertos destinados a la recreación pasiva y activa de un conglomerado de comunidades donde se desarrollan toda clase de actividades recreativas al aire libre." },
-  "IL":    { emoji:"🏭", actividad:"ACTIVIDAD INDUSTRIAL",         descripcion:"Son aquellas cuyo funcionamiento no produce perjuicios a las áreas vecinas, sin el uso de controles especiales. Incluye: Alimentos y bebidas, Textiles y calzado, Papel (libros, revistas, periódicos), Farmacéuticas, Cosméticos, Electrónica (ordenadores, laptops, cámaras, celulares), Muebles y artesanías, Logística (almacenamiento, embalaje y transporte mediante carga pesada)." },
-  "IM":    { emoji:"⚠️", actividad:"ACTIVIDAD INDUSTRIAL",         descripcion:"Son aquellas sin controles especiales cuyo funcionamiento podría causar perjuicio a las áreas residenciales. Incluye: Pecuaria (ganado bovino, porcino, caprino, ovino, equino, avícola), Química (combustibles, ácidos, fertilizantes, plásticos, explosivos, farmacéuticos, petroquímica), Siderúrgica, Cementera, Forestal, Automovilística, Industria extractiva (minería, producción maderera y de papel). Actividad Complementaria: C2, PRU, PL." },
-  "TRS":   { emoji:"♻️", actividad:"ACTIVIDAD INFRAESTRUCTURA",    descripcion:"Actividades de Gestión de los Residuos Sólidos Urbanos generados en domicilios particulares, comercios, oficinas y servicios. Incluye: Vertederos controlados, Centros de transferencia, Rellenos Sanitarios. Actividad complementaria: Ninguna." },
+  "IL":    { emoji:"🏭", actividad:"ACTIVIDAD INDUSTRIAL",         descripcion:"Son aquellas cuyo funcionamiento no produce perjuicios a las áreas vecinas, sin el uso de controles especiales. Incluye: Alimentos y bebidas, Textiles y calzado, Papel, Farmacéuticas, Cosméticos, Electrónica, Muebles y artesanías, Logística." },
+  "IM":    { emoji:"⚠️", actividad:"ACTIVIDAD INDUSTRIAL",         descripcion:"Son aquellas sin controles especiales cuyo funcionamiento podría causar perjuicio a las áreas residenciales. Incluye: Pecuaria, Química (combustibles, ácidos, fertilizantes, plásticos, explosivos, farmacéuticos, petroquímica), Siderúrgica, Cementera, Forestal, Automovilística, Industria extractiva. Actividad Complementaria: C2, PRU, PL." },
+  "TRS":   { emoji:"♻️", actividad:"ACTIVIDAD INFRAESTRUCTURA",    descripcion:"Actividades de Gestión de los Residuos Sólidos Urbanos. Incluye: Vertederos controlados, Centros de transferencia, Rellenos Sanitarios. Actividad complementaria: Ninguna." },
   "INF":   { emoji:"⚡", actividad:"ACTIVIDAD INFRAESTRUCTURA",    descripcion:"Actividades de infraestructura como servicios e instalaciones necesarias para el desarrollo de la ciudad en cuanto a energía, comunicaciones y agua potable." },
   "SIU":   { emoji:"🏥", actividad:"ACTIVIDAD INSTITUCIONAL",      descripcion:"Regula el conjunto de edificaciones destinadas al servicio de los residentes y usuarios a nivel urbano. Incluye: policlínicas, centro de atención de adictos, clínica general, clínicas especializadas, embajadas, centros culturales, corregidurías, colegios, cementerios, institutos tecnológicos, etc. Actividades secundarias permitidas: PRU, PI." },
   "SINAP": { emoji:"🌲", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Área perteneciente al Sistema Nacional de Áreas Protegidas de Panamá. Zonas de conservación y preservación de los recursos naturales con restricciones especiales de uso del suelo según la legislación ambiental panameña vigente." },
   "RBS":   { emoji:"🌱", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Área de reserva de bosque secundario destinada a la preservación y recuperación de la cobertura boscosa del territorio. Zona de protección ambiental con restricciones de desarrollo urbano." },
   "CONSH": { emoji:"🏛️", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Conjunto de edificaciones declaradas Monumentos Históricos bajo la Ley 31 de 30 de mayo de 2017 en Santiago de Veraguas. La construcción, remodelación, adición u otra intervención están regidas por dicha Ley." },
   "PND":   { emoji:"🚧", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Espacios abiertos que contienen sitios naturales en los que no se puede desarrollar ningún tipo de construcción, pero que pueden ser visitados de una comunidad o centro urbano." },
-  "LAGO":  { emoji:"💧", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Cuerpo hídrico natural o artificial sujeto a protección hídrica conforme a la Ley Nº1 del 3 de febrero de 1994. Se prohíbe expresamente causar daño o destruir los árboles o arbustos en las zonas circundantes al nacimiento de cualquier cauce natural de agua, así como en las áreas adyacentes a lagos, lagunas, ríos y quebradas." }
+  "LAGO":  { emoji:"💧", actividad:"ACTIVIDAD PROTECCIÓN",         descripcion:"Cuerpo hídrico natural o artificial sujeto a protección hídrica conforme a la Ley Nº1 del 3 de febrero de 1994. Se prohíbe expresamente causar daño o destruir los árboles o arbustos en las zonas circundantes." }
 };
 
 const ZONA_CATS = [
@@ -395,34 +358,34 @@ const ZONA_CATS = [
     {code:'MCU1',color:'#c0392b',name:'Mixto Comercial Urbano 1'},
     {code:'MCU2',color:'#a93226',name:'Mixto Comercial Urbano 2'},
     {code:'MCU3',color:'#922b21',name:'Mixto Comercial Urbano 3'},
-    {code:'MCH',color:'#cb4335',name:'Mixto Comercial e Industrial'},
+    {code:'MCH',color:'#cb4335',name:'Mixto Comercial e Histórico'},
   ]},
   {cat:'Industrial', color:'#6c3483', zones:[
     {code:'IL',color:'#a569bd',name:'Industrial Liviano'},
-    {code:'IM',color:'#7d3c98',name:'Industrial Mediano'},
+    {code:'IM',color:'#7d3c98',name:'Industrial Molesto'},
   ]},
   {cat:'Parques y Protección', color:'#1e6832', zones:[
-    {code:'Pv',color:'#58d68d',name:'Parque Verde'},
-    {code:'PL',color:'#27ae60',name:'Parque Local'},
-    {code:'Prv',color:'#1e8449',name:'Protección y Reserva'},
-    {code:'Pru',color:'#196f3d',name:'Protección Rural'},
-    {code:'Pib',color:'#117a65',name:'Protección de Riberas'},
+    {code:'Pv',color:'#58d68d',name:'Parque Vecinal'},
+    {code:'PL',color:'#27ae60',name:'Plaza'},
+    {code:'Prv',color:'#1e8449',name:'Parque Recreativo Vecinal'},
+    {code:'Pru',color:'#196f3d',name:'Parque Recreativo Urbano'},
+    {code:'Pib',color:'#117a65',name:'Parque Interbarrial'},
     {code:'SINAP',color:'#82e0aa',name:'Áreas Protegidas (SINAP)'},
   ]},
   {cat:'Suelo Urbano Especial', color:'#1a5276', zones:[
-    {code:'SIU',color:'#48c9b0',name:'Suelo de Interés Urbano'},
-    {code:'RBS',color:'#76d7c4',name:'Reserva de Bajo Suelo'},
-    {code:'CONSH',color:'#85c1e9',name:'Consolidación'},
-    {code:'INF',color:'#5dade2',name:'Infraestructura'},
-    {code:'PND',color:'#2e86c1',name:'Pendiente de Desarrollo'},
+    {code:'SIU',color:'#48c9b0',name:'Servicio Institucional Urbano'},
+    {code:'RBS',color:'#76d7c4',name:'Reserva Bosque Secundario'},
+    {code:'CONSH',color:'#85c1e9',name:'Conservación Histórica'},
+    {code:'INF',color:'#5dade2',name:'Infraestructura Urbana'},
+    {code:'PND',color:'#2e86c1',name:'Área Verde No Desarrollable'},
   ]},
   {cat:'Rural y Reserva', color:'#555', zones:[
-    {code:'RR',color:'#a9cce3',name:'Reserva Rural'},
+    {code:'RR',color:'#a9cce3',name:'Residencial Rural'},
   ]},
   {cat:'Turismo y Transporte', color:'#784212', zones:[
-    {code:'TA',color:'#f8c471',name:'Turismo y Alojamiento'},
-    {code:'TTU',color:'#f0e68c',name:'Terminal Transporte Urbano'},
-    {code:'TRS',color:'#fad7a0',name:'Transporte'},
+    {code:'TA',color:'#f8c471',name:'Transporte Aéreo'},
+    {code:'TTU',color:'#f0e68c',name:'Transporte Urbano'},
+    {code:'TRS',color:'#fad7a0',name:'Tratamiento Residuos Sólidos'},
   ]},
   {cat:'Cuerpos de Agua', color:'#1a6ea8', zones:[
     {code:'LAGO',color:'#7fb3d3',name:'Lago / Cuerpo de Agua'},
@@ -431,23 +394,13 @@ const ZONA_CATS = [
 const ZONA_MAP = {};
 ZONA_CATS.forEach(cat=>cat.zones.forEach(z=>{ZONA_MAP[z.code]=z;}));
 
-// ============================================================
-// ESTADO DE FILTROS — INDEPENDIENTES
-// ============================================================
+// ── ESTADO ──────────────────────────────────────────────────
 const activeCorr = new Set();
 const activeZona = new Set();
+let corrLayer=null, zonaLayer=null, corrData=null, zonaData=null, searchMarker=null;
 
-// ============================================================
-// CAPAS
-// ============================================================
-let corrLayer = null;
-let zonaLayer = null;
-let corrData = null;
-let zonaData = null;
-let searchMarker = null;
-
+// ── APLICAR FILTROS ─────────────────────────────────────────
 function applyFilters() {
-  // CORREGIMIENTOS — detrás de zonificación
   if(corrData) {
     if(corrLayer) map.removeLayer(corrLayer);
     corrLayer = L.geoJSON(corrData, {
@@ -462,31 +415,15 @@ function applyFilters() {
         const isActive=[...activeCorr].some(k=>name.includes(k));
         if(!isActive) return;
         l.on('click',e=>{
-          // Popup minimalista en mapa
-          const corrNomb = f.properties.CORR_NOMB||'';
-          const codigo = f.properties.CODIGO||f.properties.CORR_ID||'';
-          const color = getCorrColor(corrNomb);
-          const popupHtml =
-            '<div style="text-align:center;padding:4px 8px;">' +
-            '<span style="background:'+color+';color:#fff;font-size:13px;font-weight:700;padding:3px 14px;border-radius:12px;display:inline-block;margin-bottom:6px;">'+corrNomb+'</span><br>' +
-            '<span style="font-size:11px;color:#555;">Código: <b>'+codigo+'</b></span>' +
-            '</div>';
-          L.popup({maxWidth:220}).setLatLng(e.latlng).setContent(popupHtml).openOn(map);
-          // Detalles completos en tab Elemento
-          const props=f.properties||{};
-          const keys=Object.keys(props).filter(k=>props[k]!==null&&props[k]!=='');
-          let html='<strong style="color:#1a3a5c;font-size:13px;">Corregimiento</strong>';
-          html+='<br><span style="background:'+color+';color:#fff;font-size:12px;font-weight:600;padding:2px 10px;border-radius:10px;">'+corrNomb+'</span>';
-          html+='<br><hr style="margin:5px 0">';
-          keys.forEach(k=>{html+='<span style="font-size:11px;color:#777;">'+k+':</span> <b style="font-size:12px;color:#1a1a2e;">'+props[k]+'</b><br>';});
-          document.getElementById('feature-info').classList.remove('empty');
-          document.getElementById('feature-info').innerHTML=html;
+          const corrNomb=f.properties.CORR_NOMB||'';
+          const color=getCorrColor(corrNomb);
+          L.popup({maxWidth:220}).setLatLng(e.latlng).setContent(
+            '<div style="text-align:center;padding:4px 8px;"><span style="background:'+color+';color:#fff;font-size:13px;font-weight:700;padding:3px 14px;border-radius:12px;display:inline-block;">'+corrNomb+'</span></div>'
+          ).openOn(map);
         });
       }
     }).addTo(map);
   }
-
-  // ZONIFICACIÓN — encima de corregimientos, filtro independiente
   if(zonaData) {
     if(zonaLayer) map.removeLayer(zonaLayer);
     zonaLayer = L.geoJSON(zonaData, {
@@ -499,60 +436,59 @@ function applyFilters() {
       filter: f => activeZona.has(f.properties.RefName),
       onEachFeature:(f,l)=>{
         l.on('click',e=>{
-          const props=f.properties||{};
-          const ref=props.RefName;
-          const z=ref&&ZONA_MAP[ref]?ZONA_MAP[ref]:null;
-          const zp=ref&&ZONAS_PLOT[ref]?ZONAS_PLOT[ref]:null;
-
-          // Popup minimalista en mapa
+          const ref=f.properties.RefName;
+          const z=ZONA_MAP[ref]||null;
+          const zp=ZONAS_PLOT[ref]||null;
           const badgeColor=z?z.color:'#ccc';
-          const badgeText=z?ref+' — '+z.name:ref||'Sin clasificar';
-          const popupHtml=
+          // Popup en mapa
+          L.popup({maxWidth:280}).setLatLng(e.latlng).setContent(
             '<div style="text-align:center;padding:4px 8px;">'+
-            '<span style="background:'+badgeColor+';color:#333;font-size:12px;font-weight:700;padding:3px 14px;border-radius:12px;display:inline-block;border:1px solid rgba(0,0,0,0.15);">'+badgeText+'</span>'+
-            (zp?'<br><span style="font-size:10px;color:#555;margin-top:4px;display:block;">'+zp.actividad+'</span>':'')+'</div>';
-          L.popup({maxWidth:280}).setLatLng(e.latlng).setContent(popupHtml).openOn(map);
-
-          // Panel Elemento — con descripción del Acuerdo N°37
-          let html='';
-          if(z && zp) {
-            html+=
-              '<div style="background:'+z.color+';padding:10px 12px;border-radius:6px 6px 0 0;margin-bottom:0;">'+
-                '<div style="font-size:9px;font-weight:600;color:rgba(0,0,0,0.55);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">'+zp.emoji+' '+zp.actividad+'</div>'+
-                '<div style="font-size:13px;font-weight:700;color:#1a1a2e;line-height:1.3;">'+z.name+'</div>'+
-                '<div style="display:inline-block;margin-top:5px;background:rgba(0,0,0,0.18);color:#fff;padding:1px 10px;border-radius:10px;font-size:11px;font-weight:700;letter-spacing:.5px;">'+ref+'</div>'+
-              '</div>'+
-              '<div style="background:#f7f9fc;padding:10px 12px;font-size:11.5px;line-height:1.7;color:#2c3e50;border:1px solid #dce3ed;border-top:none;border-radius:0 0 6px 6px;margin-bottom:8px;">'+
-                zp.descripcion+
-              '</div>'+
-              '<div style="font-size:10px;color:#95a5a6;font-style:italic;text-align:center;padding:0 4px 6px;">'+
-                'Acuerdo Municipal N°37 · Art. 12 · Gaceta Oficial N°30440-A · 08 ene. 2026'+
-              '</div>';
-          } else if(z) {
-            html+='<strong style="color:#1a3a5c;font-size:13px;">Zonificación Urbana</strong>';
-            html+='<br><span style="background:'+z.color+';color:#333;font-size:12px;font-weight:600;padding:2px 10px;border-radius:10px;border:1px solid rgba(0,0,0,0.15);">'+ref+' — '+z.name+'</span>';
-            html+='<br><hr style="margin:5px 0">';
-          } else {
-            html+='<strong style="color:#1a3a5c;">Código: '+ref+'</strong><br><span style="color:#999;font-size:11px;">Sin clasificar en el PLOT</span>';
-          }
-
-          document.getElementById('feature-info').classList.remove('empty');
-          document.getElementById('feature-info').innerHTML=html;
-          document.getElementById('acuerdo-panel').style.display='block';
-          // Asegurar que tab buscar está activo
-          document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-          document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-          document.getElementById('tab-buscar').classList.add('active');
-          document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+            '<span style="background:'+badgeColor+';color:#333;font-size:12px;font-weight:700;padding:3px 14px;border-radius:12px;display:inline-block;border:1px solid rgba(0,0,0,0.15);">'+ref+(z?' — '+z.name:'')+'</span>'+
+            (zp?'<br><span style="font-size:10px;color:#555;margin-top:4px;display:block;">'+zp.actividad+'</span>':'')+'</div>'
+          ).openOn(map);
+          // Descripción Acuerdo N°37 en tab BUSCAR → click-result
+          mostrarAcuerdo(ref, z, zp, null, null);
         });
       }
     }).addTo(map);
-    // Asegurar orden: corregimientos abajo, zonificación arriba
     if(corrLayer) corrLayer.bringToBack();
     if(zonaLayer) zonaLayer.bringToFront();
   }
-
   updateStats();
+}
+
+// ── MOSTRAR DESCRIPCIÓN ACUERDO N°37 ───────────────────────
+function mostrarAcuerdo(ref, z, zp, corrNomb, coordsHtml) {
+  const cr = document.getElementById('click-result');
+  let html = '';
+  if(coordsHtml) html += coordsHtml + '<hr style="margin:4px 0">';
+  if(corrNomb) html += '<b style="color:#4a235a;">Corregimiento:</b> '+corrNomb+'<br>';
+  if(z) {
+    html += '<b style="color:#c8961a;">Zona:</b> <span style="background:'+z.color+';color:#333;padding:2px 8px;border-radius:8px;font-weight:700;border:1px solid rgba(0,0,0,0.15);">'+ref+'</span> '+z.name+'<br>';
+  }
+  if(z && zp) {
+    html +=
+      '<div style="margin-top:10px;border-radius:8px;overflow:hidden;border:1px solid #dce3ed;">'+
+        '<div style="background:'+z.color+';padding:9px 12px;">'+
+          '<div style="font-size:9px;font-weight:600;color:rgba(0,0,0,0.55);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">'+zp.emoji+' '+zp.actividad+'</div>'+
+          '<div style="font-size:12px;font-weight:700;color:#1a1a2e;line-height:1.3;">'+z.name+'</div>'+
+          '<span style="display:inline-block;margin-top:4px;background:rgba(0,0,0,0.2);color:#fff;padding:1px 9px;border-radius:9px;font-size:11px;font-weight:700;">'+ref+'</span>'+
+        '</div>'+
+        '<div style="background:#f7f9fc;padding:9px 12px;font-size:11px;line-height:1.65;color:#2c3e50;">'+zp.descripcion+'</div>'+
+        '<div style="padding:5px 12px 7px;font-size:9.5px;color:#aaa;font-style:italic;text-align:center;">'+
+          'Acuerdo Municipal N°37 · Art. 12 · Gaceta Oficial N°30440-A · 08 ene. 2026'+
+        '</div>'+
+      '</div>';
+  } else if(!z) {
+    html += '<span style="color:#e74c3c;font-size:11px;">Sin zonificación clasificada en el PLOT para este punto.</span>';
+  }
+  cr.innerHTML = html;
+  cr.style.display = 'block';
+  // Activar tab BUSCAR
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-buscar').classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>{if(b.textContent.trim()==='Buscar')b.classList.add('active');});
 }
 
 function updateStats() {
@@ -560,461 +496,171 @@ function updateStats() {
   document.getElementById('stat-zona').textContent=activeZona.size;
 }
 
-// ============================================================
-// BUSCADOR POR COORDENADAS
-// ============================================================
+// ── CONVERSIÓN LAT/LNG → UTM 17N ────────────────────────────
+function latLngToUTM17N(latDeg, lngDeg) {
+  const a=6378137.0,f=1/298.257223563,b=a*(1-f),e2=1-(b*b)/(a*a),k0=0.9996,E0=500000;
+  const lon0=-81*Math.PI/180,lat=latDeg*Math.PI/180,lon=lngDeg*Math.PI/180;
+  const N=a/Math.sqrt(1-e2*Math.sin(lat)*Math.sin(lat));
+  const T=Math.tan(lat)*Math.tan(lat),C=e2*Math.cos(lat)*Math.cos(lat)/(1-e2),A=Math.cos(lat)*(lon-lon0);
+  const M=a*((1-e2/4-3*e2*e2/64-5*e2*e2*e2/256)*lat-(3*e2/8+3*e2*e2/32+45*e2*e2*e2/1024)*Math.sin(2*lat)+(15*e2*e2/256+45*e2*e2*e2/1024)*Math.sin(4*lat)-(35*e2*e2*e2/3072)*Math.sin(6*lat));
+  const E=E0+k0*N*(A+(1-T+C)*A*A*A/6+(5-18*T+T*T+72*C-58*e2)*A*A*A*A*A/120);
+  const Nv=k0*(M+N*Math.tan(lat)*(A*A/2+(5-T+9*C+4*C*C)*A*A*A*A/24+(61-58*T+T*T+600*C-330*e2)*A*A*A*A*A*A/720));
+  return {E:E,N:Nv};
+}
+
+// ── BUSCADOR LAT/LNG ────────────────────────────────────────
 function buscarCoordenadas() {
   const lat=parseFloat(document.getElementById('input-lat').value);
   const lng=parseFloat(document.getElementById('input-lng').value);
   const result=document.getElementById('search-result');
-
-  if(isNaN(lat)||isNaN(lng)) {
-    result.style.display='block'; result.className='error';
-    result.innerHTML='⚠️ Ingresa coordenadas válidas.'; return;
-  }
-
+  if(isNaN(lat)||isNaN(lng)){result.style.display='block';result.className='search-result-box error';result.innerHTML='⚠️ Ingresa coordenadas válidas.';return;}
   const pt=[lng,lat];
-
-  // Validar que el punto esté dentro del Distrito de Santiago
-  if(corrData) {
-    const dentroDelDistrito=corrData.features.some(f=>pointInFeature(pt,f));
-    if(!dentroDelDistrito) {
-      result.style.display='block'; result.className='error';
-      result.innerHTML='⚠️ Las coordenadas están fuera del Distrito de Santiago.'; return;
-    }
-  }
-
-  // Mover mapa al punto
+  // Centrar y marcar siempre, incluso fuera del distrito
   map.setView([lat,lng],15);
-  if(searchMarker) map.removeLayer(searchMarker);
-  searchMarker=L.marker([lat,lng],{
-    icon:L.divIcon({
-      className:'',
-      html:'<div style="width:16px;height:16px;background:#e74c3c;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.4);"></div>',
-      iconAnchor:[8,8]
-    })
-  }).addTo(map);
-
-  // Buscar corregimiento
+  if(searchMarker)map.removeLayer(searchMarker);
+  searchMarker=L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div style="width:18px;height:18px;background:#e74c3c;border:3px solid #fff;border-radius:50%;box-shadow:0 0 8px rgba(0,0,0,0.5);"></div>',iconAnchor:[9,9]})}).addTo(map);
+  if(corrData){const dentro=corrData.features.some(f=>pointInFeature(pt,f));if(!dentro){result.style.display='block';result.className='search-result-box error';result.innerHTML='⚠️ Las coordenadas están fuera del Distrito de Santiago.';return;}}
   let corrNomb='—';
-  if(corrData) {
-    for(const f of corrData.features) {
-      if(pointInFeature(pt,f)){corrNomb=f.properties.CORR_NOMB||'—'; break;}
-    }
-  }
-
-  // Buscar zona
-  let zonaInfo='Fuera de zona urbana clasificada';
-  if(zonaData) {
-    for(const f of zonaData.features) {
-      if(pointInFeature(pt,f)){
-        const ref=f.properties.RefName;
-        const z=ZONA_MAP[ref];
-        zonaInfo=z?'<span style="background:'+z.color+';color:#333;padding:2px 8px;border-radius:8px;font-weight:700;border:1px solid rgba(0,0,0,0.15);">'+ref+'</span> '+z.name:ref||'Sin clasificar';
-        break;
-      }
-    }
-  }
-
-  result.style.display='block'; result.className='';
-  result.innerHTML=
-    '<b style="color:#1a3a5c;">📍 Coordenadas</b><br>'+
-    'Lat: '+lat.toFixed(6)+' &nbsp; Lng: '+lng.toFixed(6)+'<br><hr style="margin:5px 0">'+
-    '<b style="color:#4a235a;">Corregimiento:</b> '+corrNomb+'<br>'+
-    '<b style="color:#c8961a;">Zona:</b> '+zonaInfo;
+  if(corrData){for(const f of corrData.features){if(pointInFeature(pt,f)){corrNomb=f.properties.CORR_NOMB||'—';break;}}}
+  let ref=null,z=null,zp=null;
+  if(zonaData){for(const f of zonaData.features){if(pointInFeature(pt,f)){ref=f.properties.RefName;z=ZONA_MAP[ref]||null;zp=ZONAS_PLOT[ref]||null;break;}}}
+  const u=latLngToUTM17N(lat,lng);
+  const coordsHtml='<b style="color:#1a3a5c;">📍 Lat: '+lat.toFixed(6)+' | Lng: '+lng.toFixed(6)+'</b><br><span style="font-size:10px;color:#6a8aaa;">📐 UTM 17N &nbsp; E: <b>'+u.E.toFixed(2)+'</b> &nbsp; N: <b>'+u.N.toFixed(2)+'</b></span>';
+  result.style.display='block';result.className='search-result-box';
+  result.innerHTML=coordsHtml+'<hr style="margin:4px 0"><b style="color:#4a235a;">Corregimiento:</b> '+corrNomb;
+  mostrarAcuerdo(ref,z,zp,corrNomb,coordsHtml);
 }
 
-// ============================================================
-// MODO CLIC EN MAPA
-// ============================================================
-let clickModeActive = false;
+// ── MODO CLIC EN MAPA ───────────────────────────────────────
+let clickModeActive=false;
 function toggleClickMode() {
-  clickModeActive = !clickModeActive;
-  const btn = document.getElementById('click-mode-btn');
-  if(clickModeActive) {
-    btn.textContent = '✅ Modo activo — haz clic en el mapa';
-    btn.classList.add('active');
-    map.getContainer().style.cursor = 'crosshair';
-  } else {
-    btn.textContent = 'Activar modo clic';
-    btn.classList.remove('active');
-    map.getContainer().style.cursor = '';
-    document.getElementById('click-result').style.display = 'none';
-  }
+  clickModeActive=!clickModeActive;
+  const btn=document.getElementById('click-mode-btn');
+  if(clickModeActive){btn.textContent='✅ Modo activo — haz clic en el mapa';btn.classList.add('active');map.getContainer().style.cursor='crosshair';}
+  else{btn.textContent='Activar modo clic';btn.classList.remove('active');map.getContainer().style.cursor='';document.getElementById('click-result').style.display='none';}
 }
-
-map.on('click', function(e) {
-  if(!clickModeActive) return;
-  const lat = e.latlng.lat;
-  const lng = e.latlng.lng;
-  const pt = [lng, lat];
-  const result = document.getElementById('click-result');
-
-  // Verificar dentro del distrito
-  if(corrData) {
-    const dentro = corrData.features.some(f => pointInFeature(pt, f));
-    if(!dentro) {
-      result.style.display = 'block';
-      result.innerHTML = '⚠️ Punto fuera del Distrito de Santiago.';
-      return;
-    }
-  }
-
-  // Marcador
-  if(searchMarker) map.removeLayer(searchMarker);
-  searchMarker = L.marker([lat, lng], {
-    icon: L.divIcon({
-      className:'',
-      html:'<div style="width:16px;height:16px;background:#27ae60;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.4);"></div>',
-      iconAnchor:[8,8]
-    })
-  }).addTo(map);
-
-  // Buscar corregimiento
-  let corrNomb = '—';
-  if(corrData) {
-    for(const f of corrData.features) {
-      if(pointInFeature(pt, f)) { corrNomb = f.properties.CORR_NOMB || '—'; break; }
-    }
-  }
-
-  // Buscar zona
-  let zonaInfo = '<span style="color:#e74c3c;font-weight:600;">Sin zonificación asignada</span>';
-  if(zonaData) {
-    for(const f of zonaData.features) {
-      if(pointInFeature(pt, f)) {
-        const ref = f.properties.RefName;
-        const z = ZONA_MAP[ref];
-        zonaInfo = z
-          ? '<span style="background:'+z.color+';color:#333;padding:2px 8px;border-radius:8px;font-weight:700;border:1px solid rgba(0,0,0,0.15);">'+ref+'</span> '+z.name
-          : ref || 'Sin clasificar';
-        break;
-      }
-    }
-  }
-
-  // Popup en el marcador verde
-  const z_popup = (() => {
-    if(!zonaData) return null;
-    for(const f of zonaData.features) {
-      if(pointInFeature(pt, f)) {
-        const ref = f.properties.RefName;
-        return ZONA_MAP[ref] ? {ref, ...ZONA_MAP[ref]} : {ref, color:'#ccc', name: ref};
-      }
-    }
-    return null;
-  })();
-
-  const popupContent =
+map.on('click',function(e){
+  if(!clickModeActive)return;
+  const lat=e.latlng.lat,lng=e.latlng.lng,pt=[lng,lat];
+  if(corrData){const dentro=corrData.features.some(f=>pointInFeature(pt,f));if(!dentro){document.getElementById('click-result').style.display='block';document.getElementById('click-result').innerHTML='⚠️ Punto fuera del Distrito de Santiago.';return;}}
+  if(searchMarker)map.removeLayer(searchMarker);
+  searchMarker=L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#27ae60;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.4);"></div>',iconAnchor:[8,8]})}).addTo(map);
+  let corrNomb='—';
+  if(corrData){for(const f of corrData.features){if(pointInFeature(pt,f)){corrNomb=f.properties.CORR_NOMB||'—';break;}}}
+  let ref=null,z=null,zp=null;
+  if(zonaData){for(const f of zonaData.features){if(pointInFeature(pt,f)){ref=f.properties.RefName;z=ZONA_MAP[ref]||null;zp=ZONAS_PLOT[ref]||null;break;}}}
+  const u=latLngToUTM17N(lat,lng);
+  const coordsHtml='<b style="color:#1a3a5c;">📍 Lat: '+lat.toFixed(6)+' | Lng: '+lng.toFixed(6)+'</b><br><span style="font-size:10px;color:#6a8aaa;">📐 UTM 17N &nbsp; E: <b>'+u.E.toFixed(2)+'</b> &nbsp; N: <b>'+u.N.toFixed(2)+'</b></span>';
+  // Popup en marcador
+  L.popup({maxWidth:280}).setLatLng([lat,lng]).setContent(
     '<div style="padding:6px 10px;min-width:180px;">'+
     '<div style="font-size:10px;color:#777;margin-bottom:3px;">📍 '+lat.toFixed(6)+' | '+lng.toFixed(6)+'</div>'+
     '<div style="font-size:11px;margin-bottom:4px;"><b style="color:#1a3a5c;">Corregimiento:</b> '+corrNomb+'</div>'+
-    (z_popup
-      ? '<div><span style="background:'+z_popup.color+';color:#333;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;border:1px solid rgba(0,0,0,0.15);">'+z_popup.ref+'</span> '+
-        '<span style="font-size:11px;color:#333;"> '+z_popup.name+'</span></div>'
-      : '<div style="font-size:11px;color:#e74c3c;">Sin zonificación asignada</div>')+
-    '</div>';
-  L.popup({maxWidth:280}).setLatLng([lat,lng]).setContent(popupContent).openOn(map);
-
-  result.style.display = 'block';
-  result.innerHTML =
-    '<b style="color:#1a3a5c;">📍 Lat: '+lat.toFixed(6)+' | Lng: '+lng.toFixed(6)+'</b><hr style="margin:4px 0">'+
-    '<b style="color:#4a235a;">Corregimiento:</b> '+corrNomb+'<br>'+
-    '<b style="color:#c8961a;">Zona:</b> '+zonaInfo;
-
-  // ── Descripción Acuerdo N°37 — directo en click-result ──────
-  const clickResult = document.getElementById('click-result');
-  if(z_popup && ZONAS_PLOT[z_popup.ref]) {
-    const zp = ZONAS_PLOT[z_popup.ref];
-    const z  = ZONA_MAP[z_popup.ref];
-    clickResult.innerHTML =
-      '<b style="color:#1a3a5c;">📍 Lat: '+lat.toFixed(6)+' | Lng: '+lng.toFixed(6)+'</b>'+
-      (()=>{const u=latLngToUTM17N(lat,lng);return '<br><span style="font-size:10px;color:#6a8aaa;">📐 UTM 17N &nbsp; E: <b>'+u.E.toFixed(2)+'</b> &nbsp; N: <b>'+u.N.toFixed(2)+'</b></span>';})() +
-      '<hr style="margin:4px 0">'+
-      '<b style="color:#4a235a;">Corregimiento:</b> '+corrNomb+'<br>'+
-      '<b style="color:#c8961a;">Zona:</b> '+zonaInfo+
-      '<div style="margin-top:10px;border-radius:8px;overflow:hidden;border:1px solid #dce3ed;">'+
-        '<div style="background:'+z_popup.color+';padding:9px 12px;">'+
-          '<div style="font-size:9px;font-weight:600;color:rgba(0,0,0,0.55);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">'+zp.emoji+' '+zp.actividad+'</div>'+
-          '<div style="font-size:12px;font-weight:700;color:#1a1a2e;line-height:1.3;">'+z.name+'</div>'+
-          '<span style="display:inline-block;margin-top:4px;background:rgba(0,0,0,0.2);color:#fff;padding:1px 9px;border-radius:9px;font-size:11px;font-weight:700;">'+z_popup.ref+'</span>'+
-        '</div>'+
-        '<div style="background:#f7f9fc;padding:9px 12px;font-size:11px;line-height:1.65;color:#2c3e50;">'+
-          zp.descripcion+
-        '</div>'+
-        '<div style="padding:5px 12px 7px;font-size:9.5px;color:#aaa;font-style:italic;text-align:center;">'+
-          'Acuerdo Municipal N°37 · Art. 12 · Gaceta Oficial N°30440-A · 08 ene. 2026'+
-        '</div>'+
-      '</div>';
-  } else {
-    clickResult.innerHTML =
-      '<b style="color:#1a3a5c;">📍 Lat: '+lat.toFixed(6)+' | Lng: '+lng.toFixed(6)+'</b>'+
-      (()=>{const u=latLngToUTM17N(lat,lng);return '<br><span style="font-size:10px;color:#6a8aaa;">📐 UTM 17N &nbsp; E: <b>'+u.E.toFixed(2)+'</b> &nbsp; N: <b>'+u.N.toFixed(2)+'</b></span>';})() +
-      '<hr style="margin:4px 0">'+
-      '<b style="color:#4a235a;">Corregimiento:</b> '+corrNomb+'<br>'+
-      '<span style="color:#e74c3c;font-size:11px;">Sin zonificación clasificada en el PLOT para este punto.</span>';
-  }
-  clickResult.style.display = 'block';
-
-  // Mantener en tab Buscar
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tab-buscar').classList.add('active');
-  document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+    (z?'<div><span style="background:'+z.color+';color:#333;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;border:1px solid rgba(0,0,0,0.15);">'+ref+'</span> <span style="font-size:11px;color:#333;">'+z.name+'</span></div>':'<div style="font-size:11px;color:#e74c3c;">Sin zonificación asignada</div>')+
+    '</div>'
+  ).openOn(map);
+  mostrarAcuerdo(ref,z,zp,corrNomb,coordsHtml);
 });
 
-// ============================================================
-// ============================================================
-// CONVERSIÓN LAT/LNG → UTM ZONA 17N (WGS84)
-// ============================================================
-function latLngToUTM17N(latDeg, lngDeg) {
-  const a  = 6378137.0;
-  const f  = 1/298.257223563;
-  const b  = a*(1-f);
-  const e2 = 1-(b*b)/(a*a);
-  const k0 = 0.9996;
-  const E0 = 500000;
-  const lon0 = -81 * Math.PI/180; // Zona 17N, meridiano central -81°
-
-  const lat = latDeg * Math.PI/180;
-  const lon = lngDeg * Math.PI/180;
-
-  const N = a/Math.sqrt(1-e2*Math.sin(lat)*Math.sin(lat));
-  const T = Math.tan(lat)*Math.tan(lat);
-  const C = e2*Math.cos(lat)*Math.cos(lat)/(1-e2);
-  const A = Math.cos(lat)*(lon-lon0);
-
-  const M = a*((1-e2/4-3*e2*e2/64-5*e2*e2*e2/256)*lat
-              -(3*e2/8+3*e2*e2/32+45*e2*e2*e2/1024)*Math.sin(2*lat)
-              +(15*e2*e2/256+45*e2*e2*e2/1024)*Math.sin(4*lat)
-              -(35*e2*e2*e2/3072)*Math.sin(6*lat));
-
-  const E = E0 + k0*N*(A+(1-T+C)*A*A*A/6+(5-18*T+T*T+72*C-58*e2)*A*A*A*A*A/120);
-  const Nv = k0*(M + N*Math.tan(lat)*(A*A/2+(5-T+9*C+4*C*C)*A*A*A*A/24+(61-58*T+T*T+600*C-330*e2)*A*A*A*A*A*A/720));
-
-  return { E: Math.round(E), N: Math.round(Nv) };
-}
-
-// CONVERTIDOR UTM ZONA 17N → LAT/LNG
-// ============================================================
+// ── CONVERTIDOR UTM → LAT/LNG ────────────────────────────────
 function convertirUTM() {
-  const E = parseFloat(document.getElementById('input-utm-e').value);
-  const N = parseFloat(document.getElementById('input-utm-n').value);
-  const result = document.getElementById('utm-result');
-
-  if(isNaN(E) || isNaN(N)) {
-    result.style.display='block'; result.className='search-result-box error';
-    result.innerHTML='⚠️ Ingresa coordenadas UTM válidas.'; return;
-  }
-
-  // Conversión UTM zona 17N (WGS84) a Lat/Lng
-  // Constantes WGS84
-  const a = 6378137.0;
-  const f = 1/298.257223563;
-  const b = a*(1-f);
-  const e2 = 1 - (b*b)/(a*a);
-  const e1 = (1 - Math.sqrt(1-e2))/(1 + Math.sqrt(1-e2));
-  const k0 = 0.9996;
-  const E0 = 500000;
-  const N0 = 0; // Hemisferio norte
-  const lon0 = (-81) * Math.PI/180; // Zona 17N: meridiano central -81°
-
-  const x = E - E0;
-  const y = N - N0;
-  const M = y/k0;
-  const mu = M/(a*(1 - e2/4 - 3*e2*e2/64 - 5*e2*e2*e2/256));
-
-  const p1 = mu + (3*e1/2 - 27*e1*e1*e1/32)*Math.sin(2*mu);
-  const p2 = p1 + (21*e1*e1/16 - 55*e1*e1*e1*e1/32)*Math.sin(4*mu);
-  const p3 = p2 + (151*e1*e1*e1/96)*Math.sin(6*mu);
-  const phi1 = p3 + (1097*e1*e1*e1*e1/512)*Math.sin(8*mu);
-
-  const N1 = a/Math.sqrt(1 - e2*Math.sin(phi1)*Math.sin(phi1));
-  const T1 = Math.tan(phi1)*Math.tan(phi1);
-  const C1 = e2*Math.cos(phi1)*Math.cos(phi1)/(1-e2);
-  const R1 = a*(1-e2)/Math.pow(1-e2*Math.sin(phi1)*Math.sin(phi1), 1.5);
-  const D = x/(N1*k0);
-
-  const lat = phi1 - (N1*Math.tan(phi1)/R1)*(D*D/2 - (5+3*T1+10*C1-4*C1*C1-9*e2)*D*D*D*D/24);
-  const lon = lon0 + (D - (1+2*T1+C1)*D*D*D/6)/Math.cos(phi1);
-
-  const latDeg = lat*180/Math.PI;
-  const lonDeg = lon*180/Math.PI;
-
-  result.style.display='block'; result.className='search-result-box';
-  result.innerHTML=
-    '✅ <b>Resultado:</b><br>'+
-    'Lat: <b>'+latDeg.toFixed(6)+'</b><br>'+
-    'Lng: <b>'+lonDeg.toFixed(6)+'</b><br>'+
+  const E=parseFloat(document.getElementById('input-utm-e').value);
+  const N=parseFloat(document.getElementById('input-utm-n').value);
+  const result=document.getElementById('utm-result');
+  if(isNaN(E)||isNaN(N)){result.style.display='block';result.className='search-result-box error';result.innerHTML='⚠️ Ingresa coordenadas UTM válidas.';return;}
+  const a=6378137.0,f=1/298.257223563,b=a*(1-f),e2=1-(b*b)/(a*a);
+  const e1=(1-Math.sqrt(1-e2))/(1+Math.sqrt(1-e2)),k0=0.9996,E0=500000,lon0=-81*Math.PI/180;
+  const x=E-E0,y=N,M=y/k0;
+  const mu=M/(a*(1-e2/4-3*e2*e2/64-5*e2*e2*e2/256));
+  const p1=mu+(3*e1/2-27*e1*e1*e1/32)*Math.sin(2*mu);
+  const p2=p1+(21*e1*e1/16-55*e1*e1*e1*e1/32)*Math.sin(4*mu);
+  const phi1=p2+(151*e1*e1*e1/96)*Math.sin(6*mu)+(1097*e1*e1*e1*e1/512)*Math.sin(8*mu);
+  const N1=a/Math.sqrt(1-e2*Math.sin(phi1)*Math.sin(phi1));
+  const T1=Math.tan(phi1)*Math.tan(phi1),C1=e2*Math.cos(phi1)*Math.cos(phi1)/(1-e2);
+  const R1=a*(1-e2)/Math.pow(1-e2*Math.sin(phi1)*Math.sin(phi1),1.5);
+  const D=x/(N1*k0);
+  const lat=phi1-(N1*Math.tan(phi1)/R1)*(D*D/2-(5+3*T1+10*C1-4*C1*C1-9*e2)*D*D*D*D/24);
+  const lon=lon0+(D-(1+2*T1+C1)*D*D*D/6)/Math.cos(phi1);
+  const latDeg=lat*180/Math.PI,lonDeg=lon*180/Math.PI;
+  result.style.display='block';result.className='search-result-box';
+  result.innerHTML='✅ <b>Resultado:</b><br>Lat: <b>'+latDeg.toFixed(6)+'</b><br>Lng: <b>'+lonDeg.toFixed(6)+'</b><br>'+
     '<button class="btn-secondary" style="margin-top:6px;" onclick="usarResultadoUTM('+latDeg.toFixed(6)+','+lonDeg.toFixed(6)+')">Usar estas coordenadas →</button>';
 }
+function usarResultadoUTM(lat,lng){document.getElementById('input-lat').value=lat;document.getElementById('input-lng').value=lng;buscarCoordenadas();}
 
-function usarResultadoUTM(lat, lng) {
-  document.getElementById('input-lat').value = lat;
-  document.getElementById('input-lng').value = lng;
-  buscarCoordenadas();
-}
+// ── GEOMETRÍA ───────────────────────────────────────────────
+function pointInFeature(pt,feature){const g=feature.geometry;if(g.type==='Polygon')return pointInPolygon(pt,g.coordinates[0]);if(g.type==='MultiPolygon')return g.coordinates.some(poly=>pointInPolygon(pt,poly[0]));return false;}
+function pointInPolygon(pt,ring){let inside=false;const x=pt[0],y=pt[1];for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))inside=!inside;}return inside;}
 
-// Enter en campos
-document.addEventListener('DOMContentLoaded',()=>{
-  ['input-lat','input-lng'].forEach(id=>{
-    document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')buscarCoordenadas();});
-  });
-  ['input-utm-e','input-utm-n'].forEach(id=>{
-    document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')convertirUTM();});
-  });
-});
-
-// ============================================================
-// GEOMETRÍA — point in polygon
-// ============================================================
-function pointInFeature(pt,feature) {
-  const g=feature.geometry;
-  if(g.type==='Polygon') return pointInPolygon(pt,g.coordinates[0]);
-  if(g.type==='MultiPolygon') return g.coordinates.some(poly=>pointInPolygon(pt,poly[0]));
-  return false;
-}
-function pointInPolygon(pt,ring) {
-  let inside=false; const x=pt[0],y=pt[1];
-  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
-    const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
-    if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi)) inside=!inside;
-  }
-  return inside;
-}
-
-// ============================================================
-// CARGAR DATOS
-// ============================================================
+// ── CARGAR DATOS ────────────────────────────────────────────
 async function loadAll() {
-  const [corrResp,zonaResp]=await Promise.all([
-    fetch('data/DISTRITO.geojson'),
-    fetch('data/ZONIFICACION.geojson')
-  ]);
-  corrData=await corrResp.json();
-  zonaData=await zonaResp.json();
-
+  const [corrResp,zonaResp]=await Promise.all([fetch('data/DISTRITO.geojson'),fetch('data/ZONIFICACION.geojson')]);
+  corrData=await corrResp.json();zonaData=await zonaResp.json();
   const corrNames=new Set();
-  corrData.features.forEach(f=>{const n=(f.properties.CORR_NOMB||'').trim(); if(n)corrNames.add(n);});
+  corrData.features.forEach(f=>{const n=(f.properties.CORR_NOMB||'').trim();if(n)corrNames.add(n);});
   buildCorrFilter([...corrNames].sort());
   buildZonaFilter();
   applyFilters();
 }
 
-// ============================================================
-// FILTRO CORREGIMIENTOS
-// ============================================================
+// ── FILTRO CORREGIMIENTOS ───────────────────────────────────
 function buildCorrFilter(names) {
   activeCorr.clear();
-  // activeCorr ya vacío al inicio
   const container=document.getElementById('corr-list');
   names.forEach(name=>{
     const key=name.toUpperCase().trim();
     const color=getCorrColor(name);
-    const div=document.createElement('div'); div.className='corr-item';
-    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=false; cb.id='corr-'+key;
-    cb.addEventListener('change',()=>{
-      if(cb.checked)activeCorr.add(key); else activeCorr.delete(key);
-      updateAllCorrCheckbox(); applyFilters();
-    });
-    const swatch=document.createElement('span'); swatch.className='corr-swatch'; swatch.style.background=color;
-    const label=document.createElement('label'); label.htmlFor='corr-'+key;
-    label.textContent=name; label.style.cursor='pointer'; label.style.fontSize='11px';
-    div.appendChild(cb); div.appendChild(swatch); div.appendChild(label);
-    container.appendChild(div);
+    const div=document.createElement('div');div.className='corr-item';
+    const cb=document.createElement('input');cb.type='checkbox';cb.checked=false;cb.id='corr-'+key;
+    cb.addEventListener('change',()=>{if(cb.checked)activeCorr.add(key);else activeCorr.delete(key);updateAllCorrCheckbox();applyFilters();});
+    const swatch=document.createElement('span');swatch.className='corr-swatch';swatch.style.background=color;
+    const label=document.createElement('label');label.htmlFor='corr-'+key;label.textContent=name;label.style.cursor='pointer';label.style.fontSize='11px';
+    div.appendChild(cb);div.appendChild(swatch);div.appendChild(label);container.appendChild(div);
   });
   updateStats();
 }
-function toggleAllCorr(checked) {
-  activeCorr.clear();
-  document.querySelectorAll('#corr-list input').forEach(cb=>{
-    cb.checked=checked; if(checked)activeCorr.add(cb.id.replace('corr-',''));
-  });
-  applyFilters();
-}
-function updateAllCorrCheckbox() {
-  const all=document.querySelectorAll('#corr-list input');
-  const checked=[...all].filter(c=>c.checked).length;
-  const allCb=document.getElementById('corr-all');
-  allCb.checked=checked===all.length; allCb.indeterminate=checked>0&&checked<all.length;
-}
+function toggleAllCorr(checked){activeCorr.clear();document.querySelectorAll('#corr-list input').forEach(cb=>{cb.checked=checked;if(checked)activeCorr.add(cb.id.replace('corr-',''));});applyFilters();}
+function updateAllCorrCheckbox(){const all=document.querySelectorAll('#corr-list input');const checked=[...all].filter(c=>c.checked).length;const allCb=document.getElementById('corr-all');allCb.checked=checked===all.length;allCb.indeterminate=checked>0&&checked<all.length;}
 
-// ============================================================
-// FILTRO ZONIFICACIÓN
-// ============================================================
+// ── FILTRO ZONIFICACIÓN ─────────────────────────────────────
 function buildZonaFilter() {
   const container=document.getElementById('zona-list');
   ZONA_CATS.forEach(cat=>{
-    const catDiv=document.createElement('div'); catDiv.className='zona-cat';
-    const hdr=document.createElement('div'); hdr.className='zona-cat-header'; hdr.style.background=cat.color;
-    const catCb=document.createElement('input'); catCb.type='checkbox'; catCb.checked=false;
-    const catLabel=document.createElement('span'); catLabel.textContent=cat.cat; catLabel.style.flex='1';
-    const arrow=document.createElement('span'); arrow.className='zona-cat-arrow'; arrow.innerHTML='&#9658;';
-    hdr.appendChild(catCb); hdr.appendChild(catLabel); hdr.appendChild(arrow);
-    catDiv.appendChild(hdr);
-    const codesDiv=document.createElement('div'); codesDiv.className='zona-codes';
+    const catDiv=document.createElement('div');catDiv.className='zona-cat';
+    const hdr=document.createElement('div');hdr.className='zona-cat-header';hdr.style.background=cat.color;
+    const catCb=document.createElement('input');catCb.type='checkbox';catCb.checked=false;
+    const catLabel=document.createElement('span');catLabel.textContent=cat.cat;catLabel.style.flex='1';
+    const arrow=document.createElement('span');arrow.className='zona-cat-arrow';arrow.innerHTML='&#9658;';
+    hdr.appendChild(catCb);hdr.appendChild(catLabel);hdr.appendChild(arrow);catDiv.appendChild(hdr);
+    const codesDiv=document.createElement('div');codesDiv.className='zona-codes';
     cat.zones.forEach(z=>{
-      const row=document.createElement('div'); row.className='zona-code-item';
-      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=false; cb.id='zona-'+z.code;
-      cb.addEventListener('change',()=>{
-        if(cb.checked)activeZona.add(z.code); else activeZona.delete(z.code);
-        updateCatCheckbox(catCb,cat); updateAllZonaCheckbox(); applyFilters();
-      });
-      const swatch=document.createElement('span'); swatch.className='zona-code-swatch'; swatch.style.background=z.color;
-      const lbl=document.createElement('label'); lbl.htmlFor='zona-'+z.code; lbl.className='zona-code-label';
-      lbl.innerHTML='<span class="zona-code-bold">'+z.code+'</span>'+z.name; lbl.style.cursor='pointer';
-      row.appendChild(cb); row.appendChild(swatch); row.appendChild(lbl);
-      codesDiv.appendChild(row);
+      const row=document.createElement('div');row.className='zona-code-item';
+      const cb=document.createElement('input');cb.type='checkbox';cb.checked=false;cb.id='zona-'+z.code;
+      cb.addEventListener('change',()=>{if(cb.checked)activeZona.add(z.code);else activeZona.delete(z.code);updateCatCheckbox(catCb,cat);updateAllZonaCheckbox();applyFilters();});
+      const swatch=document.createElement('span');swatch.className='zona-code-swatch';swatch.style.background=z.color;
+      const lbl=document.createElement('label');lbl.htmlFor='zona-'+z.code;lbl.innerHTML='<span class="zona-code-bold">'+z.code+'</span>'+z.name;lbl.style.cursor='pointer';
+      row.appendChild(cb);row.appendChild(swatch);row.appendChild(lbl);codesDiv.appendChild(row);
     });
     catDiv.appendChild(codesDiv);
-    hdr.addEventListener('click',e=>{
-      if(e.target===catCb)return;
-      codesDiv.classList.toggle('open'); arrow.classList.toggle('open');
-    });
-    catCb.addEventListener('change',()=>{
-      cat.zones.forEach(z=>{
-        const cb=document.getElementById('zona-'+z.code); cb.checked=catCb.checked;
-        if(catCb.checked)activeZona.add(z.code); else activeZona.delete(z.code);
-      });
-      updateAllZonaCheckbox(); applyFilters();
-    });
+    hdr.addEventListener('click',e=>{if(e.target===catCb)return;codesDiv.classList.toggle('open');arrow.classList.toggle('open');});
+    catCb.addEventListener('change',()=>{cat.zones.forEach(z=>{const cb=document.getElementById('zona-'+z.code);cb.checked=catCb.checked;if(catCb.checked)activeZona.add(z.code);else activeZona.delete(z.code);});updateAllZonaCheckbox();applyFilters();});
     container.appendChild(catDiv);
   });
 }
-function updateCatCheckbox(catCb,cat) {
-  const cbs=cat.zones.map(z=>document.getElementById('zona-'+z.code));
-  const checked=cbs.filter(c=>c.checked).length;
-  catCb.checked=checked===cbs.length; catCb.indeterminate=checked>0&&checked<cbs.length;
-}
-function toggleAllZona(checked) {
-  ZONA_CATS.forEach(cat=>{
-    cat.zones.forEach(z=>{
-      const cb=document.getElementById('zona-'+z.code);
-      if(cb){cb.checked=checked; if(checked)activeZona.add(z.code); else activeZona.delete(z.code);}
-    });
-    document.querySelectorAll('.zona-cat-header input').forEach(c=>{c.checked=checked; c.indeterminate=false;});
-  });
-  applyFilters();
-}
-function updateAllZonaCheckbox() {
-  const all=document.querySelectorAll('#zona-list .zona-code-item input');
-  const checked=[...all].filter(c=>c.checked).length;
-  const allCb=document.getElementById('zona-all');
-  allCb.checked=checked===all.length; allCb.indeterminate=checked>0&&checked<all.length;
-}
+function updateCatCheckbox(catCb,cat){const cbs=cat.zones.map(z=>document.getElementById('zona-'+z.code));const checked=cbs.filter(c=>c.checked).length;catCb.checked=checked===cbs.length;catCb.indeterminate=checked>0&&checked<cbs.length;}
+function toggleAllZona(checked){ZONA_CATS.forEach(cat=>{cat.zones.forEach(z=>{const cb=document.getElementById('zona-'+z.code);if(cb){cb.checked=checked;if(checked)activeZona.add(z.code);else activeZona.delete(z.code);}});document.querySelectorAll('.zona-cat-header input').forEach(c=>{c.checked=checked;c.indeterminate=false;});});applyFilters();}
+function updateAllZonaCheckbox(){const all=document.querySelectorAll('#zona-list .zona-code-item input');const checked=[...all].filter(c=>c.checked).length;const allCb=document.getElementById('zona-all');allCb.checked=checked===all.length;allCb.indeterminate=checked>0&&checked<all.length;}
 
-// ============================================================
-// TOGGLE PANEL
-// ============================================================
+// ── TOGGLE PANEL ────────────────────────────────────────────
 const panelEl=document.getElementById('panel');
 const toggleBtn=document.getElementById('toggle-panel');
 let panelOpen=true;
-toggleBtn.addEventListener('click',()=>{
-  panelOpen=!panelOpen;
-  panelEl.style.display=panelOpen?'':'none';
-  toggleBtn.textContent=panelOpen?'\u2039':'\u203a';
-  toggleBtn.style.left=panelOpen?'310px':'0';
-  map.invalidateSize();
+toggleBtn.addEventListener('click',()=>{panelOpen=!panelOpen;panelEl.style.display=panelOpen?'':'none';toggleBtn.textContent=panelOpen?'\u2039':'\u203a';toggleBtn.style.left=panelOpen?'310px':'0';map.invalidateSize();});
+
+// ── ENTER ───────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  ['input-lat','input-lng'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')buscarCoordenadas();}));
+  ['input-utm-e','input-utm-n'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')convertirUTM();}));
 });
 
 loadAll().catch(e=>console.error('Error:',e));
